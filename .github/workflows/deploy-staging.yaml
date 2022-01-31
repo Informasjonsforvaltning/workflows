@@ -34,7 +34,7 @@ jobs:
         token: ${{ secrets.GH_TOKEN }}
 
     - name: Setup java jdk
-      if: JAVA_VERSION
+      if: java_version
       uses: actions/setup-java@v1
       with:
         java-version: ${{ inputs.java_version }}

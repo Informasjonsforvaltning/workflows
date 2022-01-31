@@ -16,10 +16,6 @@ on:
         required: false
         type: string
     secrets:
-      GCP_SA_DIGDIR_FDK_GCR_KEY:
-        required: true
-      DIGDIR_FDK_DEV_AUTODEPLOY:
-        required: true
       GH_TOKEN:
         required: true
 

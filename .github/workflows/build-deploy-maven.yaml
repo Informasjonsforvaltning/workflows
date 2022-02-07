@@ -15,6 +15,9 @@ on:
       environment:
         required: true
         type: string
+      cluster:
+        required: true
+        type: string
       actor:
         required: true
         type: string

@@ -1,4 +1,4 @@
-name: Deploy to staging
+name: Deploy to ${{ inputs.environment }}
 
 on:
   workflow_call:
@@ -12,6 +12,12 @@ on:
       repo:
         required: true
         type: string
+      environment:
+        required: true
+        type: string
+      actor:
+        required: true
+        type: string
       java_version:
         required: false
         type: string
@@ -20,14 +26,15 @@ on:
         required: true
       GCP_SA_DIGDIR_FDK_GCR_KEY:
         required: true
-      DIGDIR_FDK_DEV_AUTODEPLOY:
+      DIGDIR_FDK_AUTODEPLOY:
+        required: true
+      SLACK_WEBHOOK_URL:
         required: true
 
 jobs:
   build-and-deploy:
-    name: Build and deploy to staging environment when pull request is created
+    name: Build, test, publish and deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
 
     steps:
     - name: Checkout
@@ -106,7 +113,7 @@ jobs:
     - name: Auth gcloud CLI for deploy
       uses: google-github-actions/auth@main
       with:
-        credentials_json: ${{ secrets.DIGDIR_FDK_DEV_AUTODEPLOY }}
+        credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
 
     - name: Deploy to GCP & check status
       run: |
@@ -118,13 +125,29 @@ jobs:
           exit 1
         fi
 
-#    - name: Notify slack
-#      uses: 8398a7/action-slack@v3
-#      with:
-#        status: ${{ job.status }}
-#        author_name: 'Application: ${{ inputs.app_name }} | Environment: staging'
-#        fields: commit,author,workflow
-#      env:
-#        GITHUB_TOKEN: ${{ github.token }}
-#        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-#      if: always()
+    - name: Notify slack
+      id: slack
+      uses: slackapi/slack-github-action@v1
+      with:
+        payload: |
+          {
+            "text": "GitHub Action deploy result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "blocks": [
+              {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "Application: ${{ inputs.app_name }} | Environment: ${{ inputs.environment }}\nAuthor: ${{ inputs.actor }}"
+              },          
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "GitHub Action deploy result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      if: always()

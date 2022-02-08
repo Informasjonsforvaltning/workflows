@@ -46,6 +46,9 @@ jobs:
         repository: ${{ inputs.repo }}
         token: ${{ secrets.GH_TOKEN }}
 
+    - name: Create short sha
+      run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+
     - name: Setup java jdk
       if: ${{ inputs.java_version }}
       uses: actions/setup-java@v1
@@ -166,7 +169,7 @@ jobs:
                     "fields": [
                       {
                           "type": "mrkdwn",
-                          "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ inputs.caller_sha }} | ${ inputs.caller_sha::8 }>"
+                          "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ inputs.caller_sha }} | ${{ env.SHORT_SHA }} >"
                       },
                       {
                           "type": "mrkdwn",
@@ -174,11 +177,11 @@ jobs:
                       },
                       {
                           "type": "mrkdwn",
-                          "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow.name }}>"
+                          "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow }}>"
                       },
                       {
                           "type": "mrkdwn",
-                          "text": "*Pull request:* \n<${{ github.event.pull_request.html.url }} | ${{ github.event.pull_request.name }}>"
+                          "text": "*Pull request:* \n<${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.number }} | ${{ github.ref.name }} >"
                       }
                     ]
                   }

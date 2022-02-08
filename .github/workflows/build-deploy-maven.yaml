@@ -122,11 +122,30 @@ jobs:
       run: |
         gcloud container clusters get-credentials digdir-fdk-dev --region europe-north1-a --project digdir-fdk-dev
         kubectl apply -f ./kubectlapply.yaml --force
-        if ! kubectl --namespace=staging rollout status deployment ${{ inputs.app_name }}; then
-          kubectl --namespace=staging rollout undo deployment ${{ inputs.app_name }}
-          kubectl --namespace=staging rollout status deployment ${{ inputs.app_name }}
+        if ! kubectl --namespace=${{ inputs.environment }} rollout status deployment ${{ inputs.app_name }}; then
+          kubectl --namespace=${{ inputs.environment }} rollout undo deployment ${{ inputs.app_name }}
+          kubectl --namespace=${{ inputs.environment }} rollout status deployment ${{ inputs.app_name }}
           exit 1
         fi
+
+    - name: Set slack message (if success)
+      if: always() && job.status == 'success'
+      run: |
+        echo 'slack_emoji=:white_check_mark:' >> $GITHUB_ENV
+        echo 'slack_text=Succeeded' >> $GITHUB_ENV
+        echo 'slack_color=#2eb886 >> $GITHUB_ENV
+    - name: Set slack message (if failure)
+      if: always() && job.status == 'failure'
+      run: |
+        echo 'slack_emoji=:no_entry:' >> $GITHUB_ENV
+        echo 'slack_text=Failed' >> $GITHUB_ENV
+        echo 'slack_color=#a30200 >> $GITHUB_ENV
+    - name: Set slack message (if cancelled)
+      if: always() && job.status == 'cancelled'
+      run: |
+        echo 'slack_emoji=:warning:' >> $GITHUB_ENV
+        echo 'slack_text=Cancelled' >> $GITHUB_ENV
+        echo 'slack_color=#daa038 >> $GITHUB_ENV  
 
     - name: Notify slack
       id: slack
@@ -134,23 +153,38 @@ jobs:
       with:
         payload: |
           {
-            "text": "GitHub Action deploy result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "Application: ${{ inputs.app_name }} | Environment: ${{ inputs.environment }}\nAuthor: ${{ inputs.actor }}"
-                }
-              },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "GitHub Action deploy result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                }
-              }
-            ]
+              "attachments": [
+                  {
+                      "color": '${{ env.slack_color }}',
+                      "blocks": [
+                          {
+                              "type": "section",
+                              "text": {
+                                  "type": "mrkdwn",
+                                  "text": "${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.environment }}"
+                              },
+                              "fields": [
+                                  {
+                                      "type": "mrkdwn",
+                                      "text": "*commit:* \n<${{ github.event.head_commit.url }} | ${{ inputs.caller_sha::8 }}>"
+                                  },
+                                  {
+                                      "type": "mrkdwn",
+                                      "text": "*author:* \n${{ inputs.actor }}"
+                                  },
+                                  {
+                                      "type": "mrkdwn",
+                                      "text": "*workflow:* \n<${{ github.workflow }} | ${{ github.workflow.name }}>"
+                                  },
+                                  {
+                                      "type": "mrkdwn",
+                                      "text": "*Pull request:* \n<${{ github.event.pull_request.html.url }} | ${{ github.event.pull_request.name }}>"
+                                  }
+                              ]
+                          }
+                      ]
+                  }
+              ]
           }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

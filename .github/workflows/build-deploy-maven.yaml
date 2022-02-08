@@ -189,7 +189,7 @@ jobs:
                       },
                       {
                           "type": "mrkdwn",
-                          "text": "*Pull request:* \n<${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.number }} | ${{ github.ref_name }}>"
+                          "text": "*Pull request:* \n<${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.number }} | ${{ github.ref }}>"
                       }
                     ]
                   }

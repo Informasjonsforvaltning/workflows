@@ -153,38 +153,38 @@ jobs:
       with:
         payload: |
           {
-              "attachments": [
+            "attachments": [
+              {
+                "color": '${{ env.slack_color }}',
+                "blocks": [
                   {
-                      "color": '${{ env.slack_color }}',
-                      "blocks": [
-                          {
-                              "type": "section",
-                              "text": {
-                                  "type": "mrkdwn",
-                                  "text": "${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.environment }}"
-                              },
-                              "fields": [
-                                  {
-                                      "type": "mrkdwn",
-                                      "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ inputs.caller_sha }} | ${ inputs.caller_sha::8 }>"
-                                  },
-                                  {
-                                      "type": "mrkdwn",
-                                      "text": "*author:* \n${{ inputs.actor }}"
-                                  },
-                                  {
-                                      "type": "mrkdwn",
-                                      "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow.name }}>"
-                                  },
-                                  {
-                                      "type": "mrkdwn",
-                                      "text": "*Pull request:* \n<${{ github.event.pull_request.html.url }} | ${{ github.event.pull_request.name }}>"
-                                  }
-                              ]
-                          }
-                      ]
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.environment }}"
+                    },
+                    "fields": [
+                      {
+                          "type": "mrkdwn",
+                          "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ inputs.caller_sha }} | ${ inputs.caller_sha::8 }>"
+                      },
+                      {
+                          "type": "mrkdwn",
+                          "text": "*author:* \n${{ inputs.actor }}"
+                      },
+                      {
+                          "type": "mrkdwn",
+                          "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow.name }}>"
+                      },
+                      {
+                          "type": "mrkdwn",
+                          "text": "*Pull request:* \n<${{ github.event.pull_request.html.url }} | ${{ github.event.pull_request.name }}>"
+                      }
+                    ]
                   }
-              ]
+                ]
+              }
+            ]
           }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

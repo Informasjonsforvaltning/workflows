@@ -38,6 +38,8 @@ jobs:
   build-and-deploy:
     name: Build, test, publish and deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    env:
+      SHORT_SHA: ${{ inputs.caller_sha::8 }}
 
     steps:
     - name: Checkout
@@ -166,7 +168,7 @@ jobs:
                               "fields": [
                                   {
                                       "type": "mrkdwn",
-                                      "text": "*commit:* \n<${{ github.event.head_commit.url }} | ${{ inputs.caller_sha::8 }}>"
+                                      "text": "*commit:* \n<${{ github.event.head_commit.url }} | ${{ env.SHORT_SHA }}>"
                                   },
                                   {
                                       "type": "mrkdwn",

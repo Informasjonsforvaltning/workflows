@@ -131,21 +131,21 @@ jobs:
     - name: Set slack message (if success)
       if: always() && job.status == 'success'
       run: |
-        echo 'slack_emoji=:white_check_mark:' >> $GITHUB_ENV
-        echo 'slack_text=Succeeded' >> $GITHUB_ENV
-        echo 'slack_color=#2eb886' >> $GITHUB_ENV
+        echo "slack_emoji=:white_check_mark:" >> $GITHUB_ENV
+        echo "slack_text=Succeeded" >> $GITHUB_ENV
+        echo "slack_color=#2eb886" >> $GITHUB_ENV
     - name: Set slack message (if failure)
       if: always() && job.status == 'failure'
       run: |
-        echo 'slack_emoji=:no_entry:' >> $GITHUB_ENV
-        echo 'slack_text=Failed' >> $GITHUB_ENV
-        echo 'slack_color=#a30200' >> $GITHUB_ENV
+        echo "slack_emoji=:no_entry:" >> $GITHUB_ENV
+        echo "slack_text=Failed" >> $GITHUB_ENV
+        echo "slack_color=#a30200" >> $GITHUB_ENV
     - name: Set slack message (if cancelled)
       if: always() && job.status == 'cancelled'
       run: |
-        echo 'slack_emoji=:warning:' >> $GITHUB_ENV
-        echo 'slack_text=Cancelled' >> $GITHUB_ENV
-        echo 'slack_color=#daa038' >> $GITHUB_ENV  
+        echo "slack_emoji=:warning:" >> $GITHUB_ENV
+        echo "slack_text=Cancelled" >> $GITHUB_ENV
+        echo "slack_color=#daa038" >> $GITHUB_ENV  
 
     - name: Notify slack
       id: slack
@@ -155,7 +155,7 @@ jobs:
           {
             "attachments": [
               {
-                "color": '${{ env.slack_color }}',
+                "color": "${{ env.slack_color }}",
                 "blocks": [
                   {
                     "type": "section",

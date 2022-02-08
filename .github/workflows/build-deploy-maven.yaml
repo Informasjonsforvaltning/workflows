@@ -133,19 +133,19 @@ jobs:
       run: |
         echo 'slack_emoji=:white_check_mark:' >> $GITHUB_ENV
         echo 'slack_text=Succeeded' >> $GITHUB_ENV
-        echo 'slack_color=#2eb886 >> $GITHUB_ENV
+        echo 'slack_color=#2eb886' >> $GITHUB_ENV
     - name: Set slack message (if failure)
       if: always() && job.status == 'failure'
       run: |
         echo 'slack_emoji=:no_entry:' >> $GITHUB_ENV
         echo 'slack_text=Failed' >> $GITHUB_ENV
-        echo 'slack_color=#a30200 >> $GITHUB_ENV
+        echo 'slack_color=#a30200' >> $GITHUB_ENV
     - name: Set slack message (if cancelled)
       if: always() && job.status == 'cancelled'
       run: |
         echo 'slack_emoji=:warning:' >> $GITHUB_ENV
         echo 'slack_text=Cancelled' >> $GITHUB_ENV
-        echo 'slack_color=#daa038 >> $GITHUB_ENV  
+        echo 'slack_color=#daa038' >> $GITHUB_ENV  
 
     - name: Notify slack
       id: slack
@@ -166,7 +166,7 @@ jobs:
                               "fields": [
                                   {
                                       "type": "mrkdwn",
-                                      "text": "*commit:* \n<${{ github.event.head_commit.url }} | ${ caller.sha::8 }>"
+                                      "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ caller.sha }} | ${ caller.sha::8 }>"
                                   },
                                   {
                                       "type": "mrkdwn",
@@ -174,7 +174,7 @@ jobs:
                                   },
                                   {
                                       "type": "mrkdwn",
-                                      "text": "*workflow:* \n<${{ github.workflow }} | ${{ github.workflow.name }}>"
+                                      "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow.name }}>"
                                   },
                                   {
                                       "type": "mrkdwn",

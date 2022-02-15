@@ -21,9 +21,6 @@ on:
       actor:
         required: true
         type: string
-      node_version:
-        required: true
-        type: string
     secrets:
       GH_TOKEN:
         required: true
@@ -72,12 +69,6 @@ jobs:
           echo "event_text=${{ github.event_name }}" >> $GITHUB_ENV
           echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
 
-      - name: Use Node.js ${{ inputs.node_version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: 'npm'
-
       - name: Auth gcloud CLI for image-store
         uses: google-github-actions/auth@v0
         with:
@@ -89,7 +80,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
-          path: .npm
+          path: .cache
           key: ${{ runner.os }}-buildx-${{ inputs.caller_sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-

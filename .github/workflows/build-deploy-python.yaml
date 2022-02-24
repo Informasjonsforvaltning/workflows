@@ -139,7 +139,7 @@ jobs:
             type=ref,event=branch         
 
       - name: Set max map count for elasticsearch if needed
-        if: set_es_map_count
+        if: ${{ env.set_es_map_count }}
         run: sudo sysctl -w vm.max_map_count=262144
 
       - name: Build and push

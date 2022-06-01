@@ -17,8 +17,9 @@ on:
         required: false
         type: string
       caller_sha:
-        required: true
+        required: false
         type: string
+        default: ${{ github.sha }}
       dockerfile:
         required: false
         type: string

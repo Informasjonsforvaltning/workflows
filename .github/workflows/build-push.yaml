@@ -27,8 +27,9 @@ on:
         required: true
         type: string
       repo:
-        required: true
+        required: false
         type: string
+        default: ${{ github.repository }}
     secrets:
       GH_TOKEN:
         required: true
@@ -44,7 +45,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: ${{ inputs.repo }}
+          repository: ${{ github.repo }}
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Create short sha
@@ -62,7 +63,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .cache
-          key: ${{ runner.os }}-buildx-${{ inputs.caller_sha }}
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 

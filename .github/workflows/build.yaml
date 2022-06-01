@@ -6,7 +6,7 @@ on:
       repo:
         required: false
         type: string
-        default: ${{ github.repository }}
+        default: ${{ github.event.repository.name }}
       actor:
         required: false
         type: string

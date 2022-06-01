@@ -10,7 +10,7 @@ on:
       app_name:
         required: false
         type: string
-        default: ${{ github.repository }}
+        default: ${{ github.event.repository.name }}
       caller_sha:
         required: false
         type: string

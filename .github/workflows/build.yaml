@@ -6,7 +6,7 @@ on:
       repo:
         required: false
         type: string
-        default: ${{ github.event.repository.name }}
+        default: ${{ github.repository }}
       actor:
         required: false
         type: string
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.repo }}
+          repository: ${{ github.repository }}
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Cache Docker layers

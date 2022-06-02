@@ -4,9 +4,8 @@ on:
   workflow_call:
     inputs:
       app_name:
-        required: false
+        required: true
         type: string
-        default: ${{ github.event.repository.name }}
       build_env:
         required: false
         type: boolean

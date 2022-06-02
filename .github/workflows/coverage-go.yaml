@@ -12,7 +12,7 @@ on:
       repo:
         required: false
         type: string
-        default: ${{ github.event.repository.name }}
+        default: ${{ github.repository }}
       test_path:
         required: false
         type: string

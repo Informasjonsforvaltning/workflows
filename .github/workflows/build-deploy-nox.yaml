@@ -194,7 +194,7 @@ jobs:
           header: Safety result
           message: |
             ```
-            "${{ steps.safety.outputs.result }}"
+            ${{ steps.safety.outputs.result }}
             ```
 
       - name: Set max map count for elasticsearch if needed

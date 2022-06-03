@@ -179,10 +179,12 @@ jobs:
       - name: Run safety
         id: safety
         if: github.event_name == 'pull_request' && ${{ inputs.run_safety }}
-        run: >-
-          echo "::set-output name=SAFETY_RESULT::$(
-            nox -s safety
-          )"
+        run: |
+          OUTPUT=$(echo$(nox -s safety))
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "::set-output name=result::$OUTPUT"
 
       - name: Comment on PR with safety result
         if: github.event_name == 'pull_request' && ${{ inputs.run_safety }}
@@ -192,7 +194,7 @@ jobs:
           header: Safety result
           message: |
             ```
-            ${{ steps.safety.outputs.safety_result }}
+            "${{ steps.safety.outputs.result }}"
             ```
 
       - name: Set max map count for elasticsearch if needed

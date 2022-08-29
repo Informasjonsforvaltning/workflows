@@ -1,0 +1,48 @@
+name: Deploy Grafana Dashboard
+
+on:
+  workflow_call:
+    inputs:
+      file_path:
+        required: false
+        type: string
+        default: ./main.jsonnet
+      grafana_url:
+        required: true
+        type: string
+    secrets:
+      grafana_token:
+        required: true
+
+jobs:
+  deploy_grafana_dashboard:
+    name: Deploy Grafana Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Jsonnet Bundler
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with:
+          repo: jsonnet-bundler/jsonnet-bundler
+          platform: linux
+          arch: x86-64
+
+      - name: Install Grizzly
+        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        with:
+          repo: grafana/grizzly
+          platform: linux
+          arch: x86-64
+
+      - name: Deploy dashboards
+        env:
+          GRAFANA_URL: ${{ secrets.grafana_url }}
+          GRAFANA_TOKEN: ${{ secrets.grafana_token }}
+        run: |
+          jb install
+          grr apply ${{ file_path }}

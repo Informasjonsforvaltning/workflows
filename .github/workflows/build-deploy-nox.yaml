@@ -225,24 +225,24 @@ jobs:
         run: sudo sysctl -w vm.max_map_count=262144
 
       - name: Run tests with nox and no input variables
-        if: ${{ inputs.nox_env }} == 0
+        if: inputs.nox_env == 0
         run: nox ${{ inputs.nox_cmd }}
 
       - name: Run tests with nox and one input env
-        if: ${{ inputs.nox_env }} == 1
+        if: inputs.nox_env == 1
         run: nox ${{ inputs.nox_cmd }}
         env:
           ${{ inputs.nox_env_name }}: ${{ secrets.NOX_ENV_VALUE }}
 
       - name: Run tests with nox and two input env
-        if: ${{ inputs.nox_env }} == 2
+        if: inputs.nox_env == 2
         run: nox ${{ inputs.nox_cmd }}
         env:
           ${{ inputs.nox_env_name }}: ${{ secrets.NOX_ENV_VALUE }}
           ${{ inputs.nox_env_2_name }}: ${{ secrets.NOX_ENV_2_VALUE }}
 
       - name: Run tests with nox and three input env
-        if: ${{ inputs.nox_env }} == 3
+        if: inputs.nox_env == 3
         run: nox ${{ inputs.nox_cmd }}
         env:
           ${{ inputs.nox_env_name }}: ${{ secrets.NOX_ENV_VALUE }}
@@ -250,7 +250,7 @@ jobs:
           ${{ inputs.nox_env_3_name }}: ${{ secrets.NOX_ENV_3_VALUE }}
 
       - name: Run tests with nox and four input env
-        if: ${{ inputs.nox_env }} == 4
+        if: inputs.nox_env == 4
         run: nox ${{ inputs.nox_cmd }}
         env:
           ${{ inputs.nox_env_name }}: ${{ secrets.NOX_ENV_VALUE }}

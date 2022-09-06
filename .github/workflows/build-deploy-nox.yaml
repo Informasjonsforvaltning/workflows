@@ -41,15 +41,15 @@ on:
       nox_env_2_name:
         required: false
         type: string
-        default: NO_VALUE
+        default: NO_VALUE_2
       nox_env_3_name:
         required: false
         type: string
-        default: NO_VALUE
+        default: NO_VALUE_3
       nox_env_4_name:
         required: false
         type: string
-        default: NO_VALUE
+        default: NO_VALUE_4
       nox_image:
         required: false
         type: boolean

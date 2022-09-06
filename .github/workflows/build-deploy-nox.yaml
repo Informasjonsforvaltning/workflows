@@ -38,6 +38,18 @@ on:
         required: false
         type: string
         default: NO_VALUE
+      nox_env_2_name:
+        required: false
+        type: string
+        default: NO_VALUE
+      nox_env_3_name:
+        required: false
+        type: string
+        default: NO_VALUE
+      nox_env_4_name:
+        required: false
+        type: string
+        default: NO_VALUE
       nox_image:
         required: false
         type: boolean
@@ -78,6 +90,12 @@ on:
       DEPENDABOT_SLACK_WEBHOOK_URL:
         required: false
       NOX_ENV_VALUE:
+        required: false
+      NOX_ENV_2_VALUE:
+        required: false
+      NOX_ENV_3_VALUE:
+        required: false
+      NOX_ENV_4_VALUE:
         required: false
 
 jobs:
@@ -210,6 +228,9 @@ jobs:
         run: nox ${{ inputs.nox_cmd }}
         env:
           ${{ inputs.nox_env_name }}: ${{ secrets.NOX_ENV_VALUE }}
+          ${{ inputs.nox_env_2_name }}: ${{ secrets.NOX_ENV_2_VALUE }}
+          ${{ inputs.nox_env_3_name }}: ${{ secrets.NOX_ENV_3_VALUE }}
+          ${{ inputs.nox_env_4_name }}: ${{ secrets.NOX_ENV_4_VALUE }}
 
       - name: Run tests with nox and no input variables
         if: ${{ !inputs.nox_env }}

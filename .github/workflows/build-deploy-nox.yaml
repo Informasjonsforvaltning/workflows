@@ -242,7 +242,7 @@ jobs:
           ${{ inputs.nox_env_name }}: ${{ secrets.NOX_ENV_VALUE }}
           ${{ inputs.nox_env_2_name }}: ${{ secrets.NOX_ENV_2_VALUE }}
 
-      - run: echo '${{ env_nox_env }}'
+      - run: echo '${{ env.nox_env }}'
 
       - name: Run tests with nox and three input env
         if: ${{ env.nox_env == 3 }}

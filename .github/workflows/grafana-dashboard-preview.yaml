@@ -35,7 +35,7 @@ jobs:
         with:
           repo: jsonnet-bundler/jsonnet-bundler
           platform: linux
-          arch: x86-64
+          arch: amd64
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -44,7 +44,7 @@ jobs:
         with:
           repo: grafana/grizzly
           platform: linux
-          arch: x86-64
+          arch: amd64
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 

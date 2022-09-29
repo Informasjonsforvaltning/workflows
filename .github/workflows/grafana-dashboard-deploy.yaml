@@ -7,11 +7,12 @@ on:
         required: false
         type: string
         default: ./main.jsonnet
-      grafana_url:
-        required: true
-        type: string
     secrets:
-      grafana_token:
+      GRAFANA_URL:
+        required: true
+      GRAFANA_TOKEN:
+        required: true
+      GH_TOKEN:
         required: true
 
 jobs:
@@ -23,7 +24,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: ${{ github.repository }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Install Jsonnet Bundler
         uses: jaxxstorm/action-install-gh-release@v1.5.0
@@ -41,8 +42,8 @@ jobs:
 
       - name: Deploy dashboards
         env:
-          GRAFANA_URL: ${{ secrets.grafana_url }}
-          GRAFANA_TOKEN: ${{ secrets.grafana_token }}
+          GRAFANA_URL: ${{ secrets.GRAFANA_URL }}
+          GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
         run: |
           jb install
           grr apply ${{ file_path }}

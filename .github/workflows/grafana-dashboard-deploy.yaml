@@ -46,4 +46,4 @@ jobs:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
         run: |
           jb install
-          grr apply ${{ file_path }}
+          grr apply ${{ inputs.file_path }}

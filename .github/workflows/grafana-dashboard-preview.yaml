@@ -50,7 +50,7 @@ jobs:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
         run: |
           jb install
-          grr preview --expires ${{ snapshot_expiry_seconds }} ${{ file_path }} > urls
+          grr preview --expires ${{ inputs.snapshot_expiry_seconds }} ${{ inputs.file_path }} > urls
           echo '::group::Grafana Preview'
           cat urls
           echo '::endgroup::'

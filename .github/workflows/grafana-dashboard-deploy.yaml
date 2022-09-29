@@ -27,24 +27,16 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Install Jsonnet Bundler
-        uses: jaxxstorm/action-install-gh-release@v1.7.1
-        with:
-          repo: jsonnet-bundler/jsonnet-bundler
-          platform: linux
-          arch: amd64
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          curl -o /usr/local/bin/jb https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v0.5.1/jb-linux-amd64
+          chmod +x /usr/local/bin/jb
 
       - name: Install Grizzly
-        uses: jaxxstorm/action-install-gh-release@v1.7.1
-        with:
-          repo: grafana/grizzly
-          platform: linux
-          arch: amd64
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          curl -o /usr/local/bin/grr https://github.com/grafana/grizzly/releases/download/v0.2.0/grr-linux-amd64
+          chmod +x /usr/local/bin/grr
 
-      - name: Deploy dashboards
+      - name: Deploy Dashboards
         env:
           GRAFANA_URL: ${{ secrets.GRAFANA_URL }}
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}

@@ -36,6 +36,8 @@ jobs:
           repo: jsonnet-bundler/jsonnet-bundler
           platform: linux
           arch: x86-64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Install Grizzly
         uses: jaxxstorm/action-install-gh-release@v1.7.1
@@ -43,6 +45,8 @@ jobs:
           repo: grafana/grizzly
           platform: linux
           arch: x86-64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Create Snapshots
         env:

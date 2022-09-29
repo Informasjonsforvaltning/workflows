@@ -27,14 +27,14 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Install Jsonnet Bundler
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        uses: jaxxstorm/action-install-gh-release@v1.7.1
         with:
           repo: jsonnet-bundler/jsonnet-bundler
           platform: linux
           arch: x86-64
 
       - name: Install Grizzly
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        uses: jaxxstorm/action-install-gh-release@v1.7.1
         with:
           repo: grafana/grizzly
           platform: linux

@@ -46,7 +46,8 @@ jobs:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
         run: |
           jb install
-          grr preview --expires ${{ inputs.snapshot_expiry_seconds }} ${{ inputs.file_path }} > urls
+          sed -i 's/),$/) + {id:1},/' ${{ inputs.file_path }}
+          grr preview --expires ${{ inputs.snapshot_expiry_seconds }} ${{ inputs.file_path }} | sed 's/:3000//' > urls
           echo '::group::Grafana Preview'
           cat urls
           echo '::endgroup::'

@@ -52,7 +52,7 @@ jobs:
           cat urls
           echo '::endgroup::'
           echo 'PREVIEW_URLS<<EOF' >> $GITHUB_ENV
-          cat urls | grep view | sed 's/Dashboard\./[/;s/ view: /](/;s/$/)/' >> $GITHUB_ENV
+          cat urls | grep 'view: ' | sed 's/Dashboard\./[/;s/ view: /](/;s/$/)/' >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
       - name: Comment Preview URLs in PR

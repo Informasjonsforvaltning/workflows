@@ -1,4 +1,4 @@
-name: Reusable nox build, test, publish & deploy
+name: Reusable nox build, test, publish & deploy with helm
 
 on:
   workflow_call:

@@ -296,6 +296,12 @@ jobs:
         with:
           credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
 
+      - name: Get credentials
+        uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: ${{ inputs.cluster }}
+          location: europe-north1-a
+
       - name: Create snapshot if needed
         if: ${{ inputs.snapshot_disk }}
         run: |
@@ -307,7 +313,6 @@ jobs:
 
       - name: Deploy to GCP & check status
         run: |
-          gcloud container clusters get-credentials ${{ inputs.cluster }} --region europe-north1-a --project ${{ inputs.cluster }}
           helm repo add fdk https://informasjonsforvaltning.github.io/helm-chart/
           helm fetch --untar --untardir ./helm fdk/${{ inputs.app_name }}          
           helm upgrade ${{ inputs.app_name }} fdk/${{ inputs.app_name }} \

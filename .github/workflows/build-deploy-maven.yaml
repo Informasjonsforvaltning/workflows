@@ -216,6 +216,12 @@ jobs:
       with:
         credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
 
+    - name: Get credentials
+      uses: google-github-actions/get-gke-credentials@v0
+      with:
+        cluster_name: ${{ inputs.cluster }}
+        location: europe-north1-a
+
     - name: Create snapshot if needed
       if: ${{ inputs.snapshot_disk }}
       run: |
@@ -227,7 +233,6 @@ jobs:
 
     - name: Deploy to GCP & check status
       run: |
-        gcloud container clusters get-credentials ${{ inputs.cluster }} --region europe-north1-a --project ${{ inputs.cluster }}
         kubectl apply -f ./kubectlapply.yaml --force
         if ! kubectl --namespace=${{ inputs.environment }} rollout status deployment ${{ inputs.app_name }}; then
           kubectl --namespace=${{ inputs.environment }} rollout undo deployment ${{ inputs.app_name }}

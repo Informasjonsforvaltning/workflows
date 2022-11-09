@@ -90,7 +90,7 @@ jobs:
           echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
 
       - name: Auth gcloud CLI for deploy
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
 

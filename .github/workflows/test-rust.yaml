@@ -35,6 +35,9 @@ on:
         required: false
         type: string
         default: ${{ github.repository }}
+      rust_env:
+        required: false
+        type: string
       toolchain_tc:
         required: false
         type: string
@@ -86,6 +89,9 @@ jobs:
         if: steps.check_docker_compose.outputs.files_exists == 'true'
         with:
           compose-file: ${{ inputs.docker_compose_file }}
+
+      - name: Set rust test env
+        run: echo ${{ input.rust_env }} >> $GITHUB_ENV
 
       - name: Run tests
         uses: actions-rs/cargo@v1

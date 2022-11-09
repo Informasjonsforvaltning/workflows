@@ -91,7 +91,7 @@ jobs:
           compose-file: ${{ inputs.docker_compose_file }}
 
       - name: Set rust test env
-        run: echo ${{ input.rust_env }} >> $GITHUB_ENV
+        run: echo ${{ inputs.rust_env }} >> $GITHUB_ENV
 
       - name: Run tests
         uses: actions-rs/cargo@v1

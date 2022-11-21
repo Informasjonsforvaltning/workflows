@@ -1,87 +1,13 @@
-name: Reusable nox build, test, publish & deploy
+name: Reusable python CodeQl analysis
 
 on:
   workflow_call:
     inputs:
-      actor:
-        required: false
-        type: string
-        default: ${{ github.actor }}
-      app_name:
-        required: true
-        type: string
-      caller_sha:
-        required: false
-        type: string
-        default: ${{ github.sha }}
-      cluster:
-        required: true
-        type: string
-      dockerfile:
-        required: false
-        type: string
-        default: ./Dockerfile
-      dockerfile_context:
-        required: false
-        type: string
-        default: ./
-      environment:
-        required: true
-        type: string
-      node_version:
-        required: false
-        type: number
-        default: 0
-      nox_cmd:
-        required: false
-        type: string
-      nox_env:
-        required: false
-        type: number
-        default: 0
-      nox_env_1_name:
-        required: false
-        type: string
-        default: default_1
-      nox_env_2_name:
-        required: false
-        type: string
-        default: default_2
-      nox_env_3_name:
-        required: false
-        type: string
-        default: default_3
-      nox_env_4_name:
-        required: false
-        type: string
-        default: default_4
-      nox_image:
-        required: false
-        type: boolean
       python_version:
         required: true
         type: string
       python_architecture:
         required: true
-        type: string
-      repo:
-        required: false
-        type: string
-        default: ${{ github.repository }}
-      run_safety:
-        required: false
-        type: boolean
-      set_es_map_count:
-        required: false
-        type: boolean
-      snapshot_disk:
-        required: false
-        type: string
-      snapshot_name:
-        required: false
-        type: string
-      snapshot_zone:
-        required: false
         type: string
     secrets:
       GH_TOKEN:

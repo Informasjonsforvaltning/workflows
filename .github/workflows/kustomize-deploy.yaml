@@ -122,7 +122,7 @@ jobs:
       - name: Deploy with kustomize
         run: |
           cd deploy/${{ inputs.environment }} 
-          sed -i "s/\$(GIT_COMMIT_SHA)/${{ github.sha }}/" kustomization.yaml
+          find deploy -name '*.yaml' | xargs sed -i "s/\$(GIT_COMMIT_SHA)/${{ github.sha }}/"
           if [[ "${{ inputs.image }}" != "" ]]; then kustomize edit set image app=${{ inputs.image }}; fi
           kustomize build > .build.yaml
           kubectl apply -f .build.yaml

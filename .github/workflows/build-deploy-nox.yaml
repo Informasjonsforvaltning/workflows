@@ -200,7 +200,7 @@ jobs:
           tags: |
             type=raw,value=${{ env.image_tag }}
             type=raw,value=${{ github.sha }},priority=1000
-            type=ref,event=branch         
+            type=ref,event=branch
 
       - name: Install dependencies
         run: |

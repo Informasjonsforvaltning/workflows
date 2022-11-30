@@ -1,0 +1,48 @@
+name: Reusable CodeQl analysis
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        required: true
+        type: string
+      python_version:
+        required: false
+        type: string
+        default: '3.10'
+      python_architecture:
+        required: false
+        type: string
+        default: x64
+    secrets:
+      GH_TOKEN:
+        required: true
+
+jobs:
+  python:
+    name: Analyze source code
+    runs-on: ubuntu-latest
+    if: ${{ inputs.language == 'python' }}
+    permissions:
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python_version }}
+          architecture: ${{ inputs.python_architecture}}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2

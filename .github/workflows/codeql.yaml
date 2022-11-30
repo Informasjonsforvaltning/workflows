@@ -1,22 +1,28 @@
-name: Reusable python CodeQl analysis
+name: Reusable CodeQl analysis
 
 on:
   workflow_call:
     inputs:
+      language:
+        required: true
+        type: string
       python_version:
-        required: true
+        required: false
         type: string
+        default: '3.10'
       python_architecture:
-        required: true
+        required: false
         type: string
+        default: x64
     secrets:
       GH_TOKEN:
         required: true
 
 jobs:
-  analyze:
+  python:
     name: Analyze source code
     runs-on: ubuntu-latest
+    if: ${{ inputs.language == 'python' }}
     permissions:
       security-events: write
 

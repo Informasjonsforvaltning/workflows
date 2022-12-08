@@ -11,7 +11,7 @@ on:
         required: false
         type: string
       image:
-        required: true
+        required: false
         type: string
       caller_sha:
         required: false

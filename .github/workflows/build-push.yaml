@@ -15,6 +15,16 @@ on:
       build_env_value:
         required: false
         type: string
+      build_context:
+        required: false
+        type: string
+        default: ./
+      cache_path:
+        required: false
+        type: string
+      cache_key:
+        required: false
+        type: string  
       caller_sha:
         required: false
         type: string
@@ -47,6 +57,13 @@ jobs:
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GH_TOKEN }}
+
+      - name: Restoring Cache
+        uses: actions/cache@v2
+        if: ${{ inputs.cache_path != '' && inputs.cache_key != '' }}
+        with:
+          path: ${{ inputs.cache_path }}
+          key: ${{ inputs.cache_key }}
 
       - name: Create short sha
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
@@ -99,8 +116,8 @@ jobs:
         if: ${{ !inputs.build_env }}
         uses: docker/build-push-action@v3
         with:
-          context: ./
-          file: ./${{ inputs.dockerfile }}
+          context: ${{ inputs.build_context }}
+          file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -113,8 +130,8 @@ jobs:
         if: ${{ inputs.build_env }}
         uses: docker/build-push-action@v3
         with:
-          context: ./
-          file: ./${{ inputs.dockerfile }}
+          context: ${{ inputs.build_context }}
+          file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

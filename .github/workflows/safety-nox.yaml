@@ -39,7 +39,7 @@ jobs:
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "::set-output name=result::$OUTPUT"
+          echo "result=$OUTPUT" >> $GITHUB_OUTPUT
 
       - name: Comment on PR with safety result
         uses: marocchino/sticky-pull-request-comment@v2

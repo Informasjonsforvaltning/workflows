@@ -6,6 +6,10 @@ on:
       language:
         required: true
         type: string
+      java_version:
+        required: false
+        type: string
+        default: '17'
       python_version:
         required: false
         type: string
@@ -22,7 +26,6 @@ jobs:
   python:
     name: Analyze source code
     runs-on: ubuntu-latest
-    if: ${{ inputs.language == 'python' }}
     permissions:
       security-events: write
 
@@ -34,15 +37,23 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
+        if: ${{ inputs.language == 'python' }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.python_version }}
-          architecture: ${{ inputs.python_architecture}}
+          architecture: ${{ inputs.python_architecture }}
+
+      - name: Set up Java
+        if: ${{ inputs.language == 'java' }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: ${{ inputs.java_version }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
-          languages: python
+          languages: ${{ inputs.language }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

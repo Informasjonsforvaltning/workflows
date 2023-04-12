@@ -37,7 +37,7 @@ jobs:
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "OUTPUT<<$EOF" >> $GITHUB_ENV
-          echo "$(nox -s safety)" >> $GITHUB_ENV
+          nox -s safety >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
           echo "result=$OUTPUT" >> $GITHUB_OUTPUT
 

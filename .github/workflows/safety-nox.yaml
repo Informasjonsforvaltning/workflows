@@ -39,7 +39,6 @@ jobs:
           echo "OUTPUT<<$EOF" >> $GITHUB_ENV
           nox -s safety >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
-          echo "result=$OUTPUT" >> $GITHUB_OUTPUT
 
       - name: Comment on PR with safety result
         uses: marocchino/sticky-pull-request-comment@v2
@@ -47,5 +46,5 @@ jobs:
           header: Safety result
           message: |
             ```
-            ${{ steps.safety.outputs.result }}
+            ${{ env.OUTPUT }}
             ```

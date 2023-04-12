@@ -36,6 +36,9 @@ jobs:
         id: safety
         run: |
           OUTPUT=$(echo << EOF "$(nox -s safety)" EOF)
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
           echo "result=$OUTPUT" >> $GITHUB_OUTPUT
 
       - name: Comment on PR with safety result

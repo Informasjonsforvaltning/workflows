@@ -35,7 +35,7 @@ jobs:
       - name: Run safety
         id: safety
         run: |
-          OUTPUT=$(echo "$(nox -s safety)")
+          OUTPUT=$(echo << EOF "$(nox -s safety)" EOF)
           echo "result=$OUTPUT" >> $GITHUB_OUTPUT
 
       - name: Comment on PR with safety result

@@ -35,11 +35,13 @@ jobs:
       - name: Run safety
         id: safety
         run: |
-          OUTPUT=$(echo << EOF "$(nox -s safety)" EOF)
-          OUTPUT="${OUTPUT//'%'/'%25'}"
-          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "result=$OUTPUT" >> $GITHUB_OUTPUT
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "OUTPUT<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(nox -s safety)" >> $GITHUB_OUTPUT
+#          OUTPUT="${OUTPUT//'%'/'%25'}"
+#          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+#          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "result=$EOF" >> $GITHUB_OUTPUT
 
       - name: Comment on PR with safety result
         uses: marocchino/sticky-pull-request-comment@v2

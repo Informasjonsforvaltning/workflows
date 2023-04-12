@@ -36,9 +36,9 @@ jobs:
         id: safety
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "OUTPUT<<$EOF" >> $GITHUB_ENV
-          nox -s safety >> $GITHUB_ENV
-          echo "$EOF" >> $GITHUB_ENV
+          echo "result<<$EOF" >> $GITHUB_OUTPUT
+          nox -s safety >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Comment on PR with safety result
         uses: marocchino/sticky-pull-request-comment@v2
@@ -46,5 +46,5 @@ jobs:
           header: Safety result
           message: |
             ```
-            ${{ env.OUTPUT }}
+            ${{ steps.safety.outputs.result }}
             ```

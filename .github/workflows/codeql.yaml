@@ -10,6 +10,10 @@ on:
         required: false
         type: string
         default: '17'
+      go_version:
+        required: false
+        type: string
+        default: '1.20'
       python_version:
         required: false
         type: string
@@ -49,6 +53,12 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ inputs.java_version }}
+
+      - name: Set up Go
+        if: ${{ inputs.language == 'go' }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ inputs.go_version }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2

@@ -287,6 +287,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=local,src=.cache
           cache-to: type=local,dest=.cache
+          provenance: false
           build-args: |
             GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
 

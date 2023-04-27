@@ -183,6 +183,7 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache
+        provenance: false
         build-args:  |
           GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
           ${{ inputs.build_env_name}}=${{ inputs.build_env_value }}
@@ -198,6 +199,7 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache
+        provenance: false
         build-args:  |
           GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
 

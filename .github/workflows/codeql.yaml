@@ -27,9 +27,10 @@ on:
         required: true
 
 jobs:
-  python:
+  codeql-scan:
     name: Analyze source code
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     permissions:
       security-events: write
 

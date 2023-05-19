@@ -121,8 +121,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=local,src=.buildx-cache
-          cache-to: type=local,dest=.buildx-cache
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
           provenance: false
           build-args:  |
             GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
@@ -136,8 +136,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=local,src=.buildx-cache
-          cache-to: type=local,dest=.buildx-cache
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
           provenance: false
           build-args:  |
             GITHUB_TOKEN=${{ secrets.GH_TOKEN }}

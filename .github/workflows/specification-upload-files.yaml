@@ -1,0 +1,48 @@
+name: Build adocs and deploy specification to Github Pages
+on:
+  workflow_call:
+    inputs:
+      files:
+        required: true
+        type: string
+      host:
+        required: true
+        type: string
+      ontology:
+        required: true
+        type: string
+      ontology-type:
+        required: true
+        type: string
+      program:
+        required: true
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+      STATIC_RDF_SERVER_API_KEY:
+        required: true
+
+jobs:
+  upload_file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build html
+        id: adocbuild_html
+        uses: tonynv/asciidoctor-action@v2
+        with:
+          program: ${{ inputs.asciidoctor_build_program }}
+
+      - name: Upload files to static-rdf-server
+        uses: Informasjonsforvaltning/upload-files-to-static-rdf-server-action@v3.2.0
+        id: upload-files
+        with:
+          ontology-type: ${{ inputs.ontology-type }}
+          ontology: ${{ inputs.ontology }}
+          host: ${{ inputs.host }}
+          api-key: ${{ secrets.STATIC_RDF_SERVER_API_KEY }}
+          files: |
+            ${{ inputs.files }}

@@ -39,7 +39,7 @@ jobs:
         program: ${{ inputs.program }}
 
     - name: Deploy w/destination
-      if: ${{ inputs.destionation_dir != '' }}
+      if: ${{ inputs.destination_dir != '' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GH_TOKEN }}
@@ -49,7 +49,7 @@ jobs:
         keep_files: ${{ inputs.keep_files }}
 
     - name: Deploy w/o destination
-      if: ${{ inputs.destionation_dir == '' }}
+      if: ${{ inputs.destination_dir == '' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GH_TOKEN }}

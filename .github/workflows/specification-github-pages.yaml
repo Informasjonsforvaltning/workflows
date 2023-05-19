@@ -1,0 +1,60 @@
+name: Upload files
+on:
+  workflow_call:
+    inputs:
+      destination_dir:
+        required: false
+        type: string
+        default: ''
+      keep_files:
+        required: true
+        type: string
+      program:
+        required: true
+        type: string
+      publish_branch:
+        required: true
+        type: string
+      publish_dir:
+        required: true
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+      STATIC_RDF_SERVER_API_KEY:
+        required: true
+
+jobs:
+  build_adoc_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    name: asciidoctor build
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build html
+      id: adocbuild_html
+      uses: tonynv/asciidoctor-action@v2
+      with:
+        program: ${{ inputs.program }}
+
+    - name: Deploy w/destination
+      if: ${{ inputs.destionation_dir != '' }}
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GH_TOKEN }}
+        publish_branch: ${{ inputs.publish_branch }}
+        publish_dir: ${{ inputs.publish_dir }}
+        destination_dir: ${{ inputs.destination_dir }}
+        keep_files: ${{ inputs.keep_files }}
+
+    - name: Deploy w/o destination
+      if: ${{ inputs.destionation_dir == '' }}
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GH_TOKEN }}
+        publish_branch: ${{ inputs.publish_branch }}
+        publish_dir: ${{ inputs.publish_dir }}
+        keep_files: ${{ inputs.keep_files }}

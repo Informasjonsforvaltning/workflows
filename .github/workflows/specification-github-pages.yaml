@@ -21,8 +21,6 @@ on:
     secrets:
       GH_TOKEN:
         required: true
-      STATIC_RDF_SERVER_API_KEY:
-        required: true
 
 jobs:
   build_adoc_deploy:

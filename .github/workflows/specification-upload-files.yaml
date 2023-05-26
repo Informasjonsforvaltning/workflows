@@ -34,7 +34,7 @@ jobs:
         id: adocbuild_html
         uses: tonynv/asciidoctor-action@v2
         with:
-          program: ${{ inputs.asciidoctor_build_program }}
+          program: ${{ inputs.program }}
 
       - name: Upload files to static-rdf-server
         uses: Informasjonsforvaltning/upload-files-to-static-rdf-server-action@v3.2.0

@@ -19,6 +19,10 @@ on:
         required: false
         type: string
         default: Dockerfile
+      java_version:
+        required: false
+        type: string
+        default: '17'
     secrets:
       GH_TOKEN:
         required: true

@@ -22,7 +22,6 @@ on:
       java_version:
         required: false
         type: string
-        default: '17'
     secrets:
       GH_TOKEN:
         required: true
@@ -52,14 +51,14 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Setup java jdk if java/kotlin
-        if: ${{ inputs.java_version }}
+        if: ${{ inputs.java_version != '' }}
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: ${{ inputs.java_version }}
 
       - name: Package & run tests if maven
-        if: ${{ inputs.java_version }}
+        if: ${{ inputs.java_version != '' }}
         run: mvn clean install --no-transfer-progress
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

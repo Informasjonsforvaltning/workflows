@@ -24,7 +24,10 @@ on:
         type: string
       cache_key:
         required: false
-        type: string  
+        type: string
+      coverage_file_path:
+        required: false
+        type: string
       caller_sha:
         required: false
         type: string
@@ -35,6 +38,9 @@ on:
         default: Dockerfile
       environment:
         required: true
+        type: string
+      java_version:
+        required: false
         type: string
       repo:
         required: false
@@ -68,6 +74,23 @@ jobs:
       - name: Create short sha
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
+      - name: Setup java jdk
+        if: ${{ inputs.java_version }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: ${{ inputs.java_version }}
+
+      - name: Coverage test
+        if: ${{ inputs.coverage_file_path }}
+        run: mvn clean verify --no-transfer-progress
+
+      - name: Coverage upload
+        if: ${{ inputs.coverage_file_path }}
+        uses: codecov/codecov-action@v3
+        with:
+          files: ${{ inputs.coverage_file_path }}
+
       - name: Auth gcloud CLI for image-store
         uses: google-github-actions/auth@v1
         with:
@@ -76,13 +99,15 @@ jobs:
       - name: Configure docker to use the gcloud command-line tool as a credential helper
         run: gcloud auth configure-docker eu.gcr.io
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: .cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+      - name: Skip java tests if coverage has been run
+        if: ${{ inputs.coverage_file_path && inputs.java_version }}
+        run: echo "skip_tests=-DskipTests" >> $GITHUB_ENV
+
+      - name: Package & run tests with maven
+        if: ${{ inputs.java_version }}
+        run: mvn clean install --no-transfer-progress ${{ env.skip_tests }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Docker Buildx
         id: buildx

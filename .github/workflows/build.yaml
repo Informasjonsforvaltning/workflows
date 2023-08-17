@@ -15,6 +15,19 @@ on:
         required: false
         type: string
         default: ${{ github.sha }}
+      build_context:
+        required: false
+        type: string
+        default: ./
+      build_env:
+        required: false
+        type: boolean
+      build_env_name:
+        required: false
+        type: string
+      build_env_value:
+        required: false
+        type: string
       dockerfile:
         required: false
         type: string
@@ -38,14 +51,6 @@ jobs:
           repository: ${{ github.repository }}
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: .cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -64,15 +69,33 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Build
+        if: ${{ !inputs.build_env }}
         id: docker_build
         uses: docker/build-push-action@v4
         with:
-          context: ./
-          file: ./${{ inputs.dockerfile }}
+          context: ${{ inputs.build_context }}
+          file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
           push: false
-          tags: 'test_dev_build'
-          labels: 'dependabot'
-          cache-from: type=local,src=.buildx-cache
-          cache-to: type=local,dest=.buildx-cache
+          tags: 'test_build'
+          labels: 'test_build'
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
+          provenance: false
           build-args:  |
             GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
+
+      - name: Build (with build env)
+        if: ${{ inputs.build_env }}
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ inputs.build_context }}
+          file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
+          push: false
+          tags: 'test_build'
+          labels: 'test_build'
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
+          provenance: false
+          build-args:  |
+            GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
+            ${{ inputs.build_env_name }}=${{ inputs.build_env_value }}

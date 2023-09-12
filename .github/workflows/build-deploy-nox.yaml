@@ -278,7 +278,7 @@ jobs:
       - name: Build and push image if not handled by nox
         if: ${{ !inputs.nox_image }}
         id: docker_build
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.dockerfile_context }}
           file: ${{ inputs.dockerfile }}

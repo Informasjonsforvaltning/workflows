@@ -174,7 +174,7 @@ jobs:
 
     - name: Build and push with custom env var
       if: ${{ inputs.build_env_name }}
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         context: ./
         file: ./Dockerfile
@@ -190,7 +190,7 @@ jobs:
 
     - name: Build and push
       if: ${{ !inputs.build_env_name }}
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         context: ./
         file: ./Dockerfile

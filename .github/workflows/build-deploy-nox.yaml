@@ -148,7 +148,7 @@ jobs:
 
       - name: Set up node (if required)
         if: ${{ inputs.node_version > 0 }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
 
@@ -176,7 +176,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Meta input
         if: ${{ inputs.environment == 'prod' }}
@@ -192,7 +192,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}
           flavor: |
@@ -278,7 +278,7 @@ jobs:
       - name: Build and push image if not handled by nox
         if: ${{ !inputs.nox_image }}
         id: docker_build
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.dockerfile_context }}
           file: ${{ inputs.dockerfile }}

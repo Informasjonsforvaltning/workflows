@@ -146,7 +146,7 @@ jobs:
 
     - name: Set up Docker Buildx
       id: buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
 
     - name: Meta input
       if: ${{ inputs.environment == 'prod' }}
@@ -162,7 +162,7 @@ jobs:
 
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5
       with:
         images: eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}
         flavor: |
@@ -174,7 +174,7 @@ jobs:
 
     - name: Build and push with custom env var
       if: ${{ inputs.build_env_name }}
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         context: ./
         file: ./Dockerfile
@@ -190,7 +190,7 @@ jobs:
 
     - name: Build and push
       if: ${{ !inputs.build_env_name }}
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         context: ./
         file: ./Dockerfile

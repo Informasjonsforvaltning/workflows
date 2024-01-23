@@ -1,0 +1,189 @@
+name: Reusable build & publish
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+      build_env:
+        required: false
+        type: boolean
+      build_env_name:
+        required: false
+        type: string
+      build_env_value:
+        required: false
+        type: string
+      build_context:
+        required: false
+        type: string
+        default: ./
+      cache_path:
+        required: false
+        type: string
+      cache_key:
+        required: false
+        type: string
+        default: ${{ github.sha }}
+      dockerfile:
+        required: false
+        type: string
+        default: Dockerfile
+      environment:
+        required: true
+        type: string
+      nox_cmd:
+        required: false
+        type: string
+      nox_env:
+        required: false
+        type: number
+        default: 0
+      python_version:
+        required: false
+        type: string
+      python_architecture:
+        required: false
+        type: string
+        default: x64
+      repo:
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      run_safety:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      GH_TOKEN:
+        required: true
+      GCP_SA_DIGDIR_FDK_GCR_KEY:
+        required: true
+
+jobs:
+  build:
+    name: Build, test, publish ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Restoring Cache
+        uses: actions/cache@v3
+        if: ${{ inputs.cache_path != '' && inputs.cache_key != '' }}
+        with:
+          path: ${{ inputs.cache_path }}
+          key: ${{ inputs.cache_key }}
+
+      - name: Create short sha
+        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+
+      - name: Set up Python
+        if: ${{ inputs.python_version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python_version }}
+          architecture: ${{ inputs.python_architecture}}
+
+      - name: Auth gcloud CLI for image-store
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
+
+      - name: Configure docker to use the gcloud command-line tool as a credential helper
+        run: gcloud auth configure-docker eu.gcr.io
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Meta input
+        if: ${{ inputs.environment == 'prod' }}
+        run: |
+          echo "image_tag=latest" >> $GITHUB_ENV
+          echo "meta_flavor=true" >> $GITHUB_ENV
+
+      - name: Meta input if not prod
+        if: ${{ inputs.environment != 'prod' }}
+        run: |
+          echo "image_tag=${{ inputs.environment }}_latest" >> $GITHUB_ENV
+          echo "meta_flavor=false" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}
+          flavor: |
+            latest=${{ env.meta_flavor }}
+          tags: |
+            type=raw,value=${{ env.image_tag }}
+            type=raw,value=${{ github.sha }},priority=1000
+            type=ref,event=branch
+
+      - name: Install dependencies
+        run: |
+          pip install --constraint=.github/workflows/constraints.txt pip
+          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
+          pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
+          pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
+
+      - name: Run safety
+        id: safety
+        if: github.event_name == 'pull_request' && ${{ inputs.run_safety }}
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "result<<$EOF" >> $GITHUB_OUTPUT
+          nox -s safety >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR with safety result
+        if: ${{ github.event_name == 'pull_request' && inputs.run_safety && github.actor != 'dependabot[bot]' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          header: Safety result
+          message: |
+            ```
+            ${{ steps.safety.outputs.result }}
+            ```
+
+      - name: Run tests with nox and no input variables
+        if: ${{ inputs.nox_env == 0 }}
+        run: nox --no-reuse-existing-virtualenvs ${{ inputs.nox_cmd }}
+
+      - name: Build and push
+        if: ${{ !inputs.build_env }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.build_context }}
+          file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
+          provenance: false
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
+
+      - name: Build (with build env) and push
+        if: ${{ inputs.build_env }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.build_context }}
+          file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
+          provenance: false
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
+            ${{ inputs.build_env_name }}=${{ inputs.build_env_value }}

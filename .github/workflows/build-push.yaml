@@ -65,7 +65,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Restoring Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         if: ${{ inputs.cache_path != '' && inputs.cache_key != '' }}
         with:
           path: ${{ inputs.cache_path }}

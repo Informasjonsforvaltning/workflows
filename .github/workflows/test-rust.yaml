@@ -82,7 +82,7 @@ jobs:
 
       - name: Check docker_compose_file existence
         id: check_docker_compose
-        uses: andstor/file-existence-action@v2
+        uses: andstor/file-existence-action@v3
         with:
           files: ${{ inputs.docker_compose_file }}
 

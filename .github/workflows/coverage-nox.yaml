@@ -24,6 +24,8 @@ on:
         required: true
       NOX_ENV_VALUE:
         required: false
+      CODECOV_TOKEN:
+        required: true
 
 jobs:
   coverage:
@@ -58,3 +60,5 @@ jobs:
       - name: Test coverage
         if: ${{ !inputs.nox_env }}
         run: nox --sessions ${{ inputs.sessions }} coverage
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

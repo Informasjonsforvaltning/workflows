@@ -16,6 +16,8 @@ on:
     secrets:
       GH_TOKEN:
         required: true
+      CODECOV_TOKEN:
+        required: true
 
 jobs:
   coverage:
@@ -41,3 +43,4 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: ${{ inputs.coverage_file_path }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

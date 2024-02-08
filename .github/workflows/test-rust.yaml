@@ -57,6 +57,8 @@ on:
     secrets:
       GH_TOKEN:
         required: true
+      CODECOV_TOKEN:
+        required: false
 
 jobs:
   test:
@@ -111,4 +113,5 @@ jobs:
       - name: Codecov upload
         uses: codecov/codecov-action@v4
         with:
+          CODECOV_TOKEN: $ {{ secrets.CODECOV_TOKEN }}
           files: ${{ inputs.codecov_files }}

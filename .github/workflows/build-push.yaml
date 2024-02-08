@@ -51,6 +51,8 @@ on:
         required: true
       GCP_SA_DIGDIR_FDK_GCR_KEY:
         required: true
+      CODECOV_TOKEN:
+        required: false
 
 jobs:
   build:
@@ -90,6 +92,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: ${{ inputs.coverage_file_path }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Auth gcloud CLI for image-store
         uses: google-github-actions/auth@v2

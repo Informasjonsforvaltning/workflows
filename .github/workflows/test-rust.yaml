@@ -74,11 +74,10 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ inputs.toolchain_tc }}
-          override: ${{ inputs.toolchain_override }}
-          profile: ${{ inputs.toolchain_profile }}
+        run: |
+          rustup update
+          rustup toolchain install ${{ inputs.toolchain_tc }}
+          rustup set profile 'minimal'
 
       - name: Check docker_compose_file existence
         id: check_docker_compose
@@ -96,19 +95,20 @@ jobs:
         run: echo "${{ inputs.rust_env }}" >> $GITHUB_ENV
 
       - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: ${{ inputs.cargo_command }}
-          args: ${{ inputs.cargo_args }}
+        run: |
+          cargo test ${{ inputs.cargo_args }}
         env:
           CARGO_INCREMENTAL: ${{ inputs.cargo_incremental }}
           RUSTFLAGS: ${{ inputs.cargo_rustflags }}
           RUSTDOCFLAGS: ${{ inputs.cargo_rustdocflags }}
 
-      - name: Test coverage
-        uses: actions-rs/grcov@v0.1
-        with:
-          config: ${{ inputs.grcov_config }}
+      - name: Download grcov
+        run: |
+          cargo install grcov       
+
+      - name: Run xtask coverage
+        run: |
+          grcov . --binary-path ./target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/coverage/tests.lcov
 
       - name: Codecov upload
         uses: codecov/codecov-action@v4

@@ -77,7 +77,7 @@ jobs:
         run: |
           rustup update
           rustup toolchain install ${{ inputs.toolchain_tc }}
-          rustup set profile 'minimal'
+          rustup default ${{ inputs.toolchain_tc }}
 
       - name: Check docker_compose_file existence
         id: check_docker_compose

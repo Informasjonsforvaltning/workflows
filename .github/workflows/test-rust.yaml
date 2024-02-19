@@ -95,12 +95,12 @@ jobs:
         run: echo "${{ inputs.rust_env }}" >> $GITHUB_ENV
 
       - name: Run tests
-        run: |
-          cargo test ${{ inputs.cargo_args }}
         env:
           CARGO_INCREMENTAL: ${{ inputs.cargo_incremental }}
           RUSTFLAGS: ${{ inputs.cargo_rustflags }}
           RUSTDOCFLAGS: ${{ inputs.cargo_rustdocflags }}
+        run: |
+          cargo test ${{ inputs.cargo_args }}
 
       - name: Download grcov
         run: |

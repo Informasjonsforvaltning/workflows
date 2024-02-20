@@ -108,7 +108,7 @@ jobs:
 
       - name: Run xtask coverage
         run: |
-          grcov . --binary-path ./target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ./tests.lcov
+          grcov . --binary-path ./target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ${{ inputs.codecov_files }}
 
       - name: Codecov upload
         uses: codecov/codecov-action@v4

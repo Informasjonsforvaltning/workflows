@@ -7,10 +7,6 @@ on:
         required: false
         type: string
         default: --all
-      cargo_command:
-        required: false
-        type: string
-        default: test
       cargo_incremental:
         required: false
         type: string
@@ -27,10 +23,10 @@ on:
         required: false
         type: string
         default: ./lcov.txt
-      grcov_config:
+      grcov_binary_path:
         required: false
         type: string
-        default: ./grcov.yml
+        default: ./target/debug/deps/
       repo:
         required: false
         type: string
@@ -42,10 +38,6 @@ on:
         required: false
         type: string
         default: nightly
-      toolchain_override:
-        required: false
-        type: boolean
-        default: true
       toolchain_profile:
         required: false
         type: string
@@ -74,11 +66,11 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ inputs.toolchain_tc }}
-          override: ${{ inputs.toolchain_override }}
-          profile: ${{ inputs.toolchain_profile }}
+        run: |
+          rustup update
+          rustup toolchain install ${{ inputs.toolchain_tc }}
+          rustup default ${{ inputs.toolchain_tc }}
+          rustup set profile ${{ inputs.toolchain_profile }}
 
       - name: Check docker_compose_file existence
         id: check_docker_compose
@@ -96,22 +88,23 @@ jobs:
         run: echo "${{ inputs.rust_env }}" >> $GITHUB_ENV
 
       - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: ${{ inputs.cargo_command }}
-          args: ${{ inputs.cargo_args }}
         env:
           CARGO_INCREMENTAL: ${{ inputs.cargo_incremental }}
           RUSTFLAGS: ${{ inputs.cargo_rustflags }}
           RUSTDOCFLAGS: ${{ inputs.cargo_rustdocflags }}
+        run: |
+          cargo test ${{ inputs.cargo_args }}
 
-      - name: Test coverage
-        uses: actions-rs/grcov@v0.1
-        with:
-          config: ${{ inputs.grcov_config }}
+      - name: Download grcov
+        run: |
+          cargo install grcov       
+
+      - name: Run grcov
+        run: |
+          grcov . --binary-path ${{ inputs.grcov_binary_path }} -s . \-t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ${{ inputs.codecov_files }}
 
       - name: Codecov upload
         uses: codecov/codecov-action@v4
         with:
-          token: $ {{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ inputs.codecov_files }}

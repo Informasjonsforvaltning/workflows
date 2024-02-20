@@ -7,10 +7,6 @@ on:
         required: false
         type: string
         default: --all
-      cargo_command:
-        required: false
-        type: string
-        default: test
       cargo_incremental:
         required: false
         type: string
@@ -27,10 +23,10 @@ on:
         required: false
         type: string
         default: ./lcov.txt
-      grcov_config:
+      grcov_binary_path:
         required: false
         type: string
-        default: ./grcov.yml
+        default: ./target/debug/deps/
       repo:
         required: false
         type: string
@@ -42,10 +38,6 @@ on:
         required: false
         type: string
         default: nightly
-      toolchain_override:
-        required: false
-        type: boolean
-        default: true
       toolchain_profile:
         required: false
         type: string
@@ -78,6 +70,7 @@ jobs:
           rustup update
           rustup toolchain install ${{ inputs.toolchain_tc }}
           rustup default ${{ inputs.toolchain_tc }}
+          rustup set profile ${{ inputs.toolchain_profile }}
 
       - name: Check docker_compose_file existence
         id: check_docker_compose
@@ -106,9 +99,9 @@ jobs:
         run: |
           cargo install grcov       
 
-      - name: Run xtask coverage
+      - name: Run grcov
         run: |
-          grcov . --binary-path ./target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ${{ inputs.codecov_files }}
+          grcov . --binary-path ${{ inputs.grcov_binary_path }} -s . \-t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ${{ inputs.codecov_files }}
 
       - name: Codecov upload
         uses: codecov/codecov-action@v4

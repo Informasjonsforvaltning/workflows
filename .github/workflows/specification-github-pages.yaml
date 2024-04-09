@@ -40,7 +40,7 @@ jobs:
 
     - name: Deploy w/destination
       if: ${{ inputs.destination_dir != '' }}
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GH_TOKEN }}
         publish_branch: ${{ inputs.publish_branch }}
@@ -50,7 +50,7 @@ jobs:
 
     - name: Deploy w/o destination
       if: ${{ inputs.destination_dir == '' }}
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GH_TOKEN }}
         publish_branch: ${{ inputs.publish_branch }}

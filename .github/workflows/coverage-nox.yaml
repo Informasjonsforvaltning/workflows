@@ -3,6 +3,9 @@ name: Reusable coverage for Nox
 on:
   workflow_call:
     inputs:
+      coverage_file_path:
+        required: false
+        type: string
       python_version:
         required: true
         type: string
@@ -62,4 +65,11 @@ jobs:
         if: ${{ !inputs.nox_env }}
         run: nox --sessions ${{ inputs.sessions }} coverage
         env:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Report coverage
+        if: ${{ inputs.coverage_file_path != '' }}
+        uses: codecov/codecov-action@v4
+        with:
+          files: ${{ inputs.coverage_file_path }}
           token: ${{ secrets.CODECOV_TOKEN }}

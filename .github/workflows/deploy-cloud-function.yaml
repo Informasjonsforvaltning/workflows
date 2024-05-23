@@ -107,7 +107,7 @@ jobs:
 
     - name: Deploy
       if: env.ENV_VARS != ''
-      uses: google-github-actions/deploy-cloud-functions@main
+      uses: google-github-actions/deploy-cloud-functions@v2
       with:
         name: ${{ inputs.app_name }}
         runtime: ${{ inputs.runtime }}
@@ -120,7 +120,7 @@ jobs:
 
     - name: Deploy
       if: env.ENV_VARS == ''
-      uses: google-github-actions/deploy-cloud-functions@main
+      uses: google-github-actions/deploy-cloud-functions@v2
       with:
         name: ${{ inputs.app_name }}
         runtime: ${{ inputs.runtime }}

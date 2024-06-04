@@ -9,10 +9,9 @@ on:
         required: false
         type: string
         default: x64
-      audit-path:
-        required: false
+      venv_name:
+        required: true
         type: string
-        default: .
     secrets:
       GH_TOKEN:
         required: true
@@ -42,4 +41,4 @@ jobs:
       - name: Run audit
         uses: pypa/gh-action-pip-audit@v1.0.8
         with:
-          virtual-environment: venv/
+          virtual-environment: ${{ inputs.venv_name }}

@@ -40,7 +40,7 @@ jobs:
           pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
 
       - name: Run audit
-        uses: pypa/gh-action-pip-audit@v1
+        uses: pypa/gh-action-pip-audit@v1.0.8
         with:
           path: ${{ inputs.audit-path }}
           token: ${{ secrets.GH_TOKEN }}

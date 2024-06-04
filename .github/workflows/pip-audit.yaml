@@ -42,5 +42,4 @@ jobs:
       - name: Run audit
         uses: pypa/gh-action-pip-audit@v1.0.8
         with:
-          path: ${{ inputs.audit-path }}
-          token: ${{ secrets.GH_TOKEN }}
+          inputs: ${{ inputs.audit-path }}

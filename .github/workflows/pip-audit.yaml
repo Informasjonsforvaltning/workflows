@@ -42,4 +42,4 @@ jobs:
       - name: Run audit
         uses: pypa/gh-action-pip-audit@v1.0.8
         with:
-          virtual-enviroment: venv/
+          virtual-environment: venv/

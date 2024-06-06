@@ -1,0 +1,44 @@
+name: Reusable workflow for pip audit
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        required: true
+        type: string
+      python_architecture:
+        required: false
+        type: string
+        default: x64
+      venv_name:
+        required: true
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+          architecture: ${{ inputs.python_architecture }}
+
+      - name: Install dependencies
+        run: |
+          pip install --constraint=.github/workflows/constraints.txt pip
+          pip install --constraint=.github/workflows/constraints.txt pipx
+          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
+          pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
+          pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
+
+      - name: Run audit
+        uses: pypa/gh-action-pip-audit@v1.0.8
+        with:
+          virtual-environment: env/${{ inputs.venv_name }}

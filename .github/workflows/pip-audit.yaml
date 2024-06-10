@@ -10,8 +10,9 @@ on:
         type: string
         default: x64
       venv_name:
-        required: true
+        required: false
         type: string
+        default: ""
     secrets:
       GH_TOKEN:
         required: true
@@ -35,10 +36,11 @@ jobs:
           pip install --constraint=.github/workflows/constraints.txt pip
           pip install --constraint=.github/workflows/constraints.txt pipx
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
-          pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
-          pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
+          poetry config virtualenvs.in-project true
+          poetry install
+          
 
       - name: Run audit
         uses: pypa/gh-action-pip-audit@v1.0.8
         with:
-          inputs: venv/${{ inputs.venv_name }}
+          virtual-environment: .venv/${{ inputs.venv_name }}

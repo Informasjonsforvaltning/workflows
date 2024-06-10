@@ -10,8 +10,9 @@ on:
         type: string
         default: x64
       venv_name:
-        required: true
+        required: false
         type: string
+        default: ""
     secrets:
       GH_TOKEN:
         required: true

@@ -142,7 +142,7 @@ jobs:
 
       - name: Build and push
         if: ${{ !inputs.build_env }}
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.build_context }}
           file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
@@ -157,7 +157,7 @@ jobs:
 
       - name: Build (with build env) and push
         if: ${{ inputs.build_env }}
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.build_context }}
           file: ${{ inputs.build_context }}${{ inputs.dockerfile }}

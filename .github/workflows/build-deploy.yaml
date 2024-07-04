@@ -33,6 +33,9 @@ on:
       environment:
         required: true
         type: string
+      lfs:
+        required: false
+        type: boolean
       repo:
         required: false
         type: string
@@ -67,6 +70,14 @@ jobs:
       slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
+      - name: Checkout LFS
+        if: ${{ !inputs.lfs }}
+        uses: actions/checkout@v4
+        with:
+          lfs: 'true'
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GH_TOKEN }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:

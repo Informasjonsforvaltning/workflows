@@ -41,7 +41,7 @@ jobs:
           
 
       - name: Run audit
-        uses: pypa/gh-action-pip-audit@v1.0.8
+        uses: pypa/gh-action-pip-audit@v1.1.0
         with:
           virtual-environment: .venv/${{ inputs.venv_name }}
           summary: true

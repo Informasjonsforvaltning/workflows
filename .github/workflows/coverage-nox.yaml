@@ -60,13 +60,10 @@ jobs:
         run: nox --sessions ${{ inputs.sessions }} coverage
         env:
           ${{ inputs.nox_env_name }}: ${{ secrets.NOX_ENV_VALUE }}
-          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Test coverage
         if: ${{ !inputs.nox_env }}
         run: nox --sessions ${{ inputs.sessions }} coverage
-        env:
-          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Report coverage
         if: ${{ inputs.coverage_file_path != '' }}

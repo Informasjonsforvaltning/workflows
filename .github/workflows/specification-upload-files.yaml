@@ -23,10 +23,6 @@ on:
       program_pdf:
         required: false
         type: string
-      ref:
-        required: false
-        type: string
-        default: ${{ github.ref }}
     secrets:
       GH_TOKEN:
         required: true
@@ -39,8 +35,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
 
       - name: Build html
         id: adocbuild_html

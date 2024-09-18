@@ -14,8 +14,14 @@ on:
       ontology-type:
         required: true
         type: string
-      program:
-        required: true
+      program_html:
+        required: false
+        type: string
+      program_epub:
+        required: false
+        type: string
+      program_pdf:
+        required: false
         type: string
     secrets:
       GH_TOKEN:
@@ -34,7 +40,19 @@ jobs:
         id: adocbuild_html
         uses: tonynv/asciidoctor-action@v2
         with:
-          program: ${{ inputs.program }}
+          program: ${{ inputs.program_html }}
+
+      - name: Build epub
+        id: adocbuild_epub
+        uses: tonynv/asciidoctor-action@v2
+        with:
+          program: ${{ inputs.program_epub }}
+
+      - name: Build pdf
+        id: adocbuild_pdf
+        uses: tonynv/asciidoctor-action@v2
+        with:
+          program: ${{ inputs.program_pdf }}
 
       - name: Upload files to static-rdf-server
         uses: Informasjonsforvaltning/upload-files-to-static-rdf-server-action@v3.2.0

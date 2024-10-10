@@ -1,0 +1,39 @@
+name: Build adocs and deploy specification to Github Pages
+on:
+  workflow_call:
+    inputs:
+      file_path:
+        required: false
+        type: string
+      host:
+        required: true
+        type: string
+      ontology:
+        required: true
+        type: string
+      ontology-type:
+        required: true
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+      STATIC_RDF_SERVER_API_KEY:
+        required: true
+
+jobs:
+  delete_file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete file
+        run: |
+          URL = ${{ inputs.host }}/${{ inputs.ontology-type }}/${{ inputs.ontology }}${{ inputs.file_path }}
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -i -H "X-API-KEY: ${{ secrets.STATIC_RDF_SERVER_API_KEY }}" -X DELETE "$URL")
+      
+          if [ "$HTTP_STATUS" -eq 204 ]; then
+            echo "Resource deleted successfully!"
+          elif [ "$HTTP_STATUS" -eq 404 ]; then
+            echo "::warning::Resource not found (HTTP 404)"
+          else
+            echo "::error::Failed to delete resource (HTTP $HTTP_STATUS)"
+            exit 1
+          fi

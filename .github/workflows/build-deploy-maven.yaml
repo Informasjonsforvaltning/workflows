@@ -119,6 +119,11 @@ jobs:
       with:
         files: ${{ inputs.coverage_file_path }}
 
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        version: 'latest'
+
     - name: Auth gcloud CLI for image-store
       uses: google-github-actions/auth@v2
       with:

@@ -112,6 +112,11 @@ jobs:
           echo "event_text=${{ github.event_name }}" >> $GITHUB_ENV
           echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: 'latest'
+
       - name: Auth gcloud CLI for image-store
         uses: google-github-actions/auth@v2
         with:

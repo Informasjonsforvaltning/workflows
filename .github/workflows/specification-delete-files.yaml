@@ -15,8 +15,6 @@ on:
         required: true
         type: string
     secrets:
-      GH_TOKEN:
-        required: true
       STATIC_RDF_SERVER_API_KEY:
         required: true
 

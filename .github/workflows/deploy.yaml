@@ -96,6 +96,11 @@ jobs:
         chmod o+w ./kubectlapply.yaml
         cat kubectlapply.yaml
 
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        version: 'latest'
+
     - name: Auth gcloud CLI for deploy
       uses: google-github-actions/auth@v2
       with:

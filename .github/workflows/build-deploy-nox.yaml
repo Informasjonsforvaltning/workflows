@@ -158,6 +158,11 @@ jobs:
           python-version: ${{ inputs.python_version }}
           architecture: ${{ inputs.python_architecture}}
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: 'latest'
+
       - name: Auth gcloud CLI for image-store
         uses: google-github-actions/auth@v2
         with:

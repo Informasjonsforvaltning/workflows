@@ -158,15 +158,15 @@ jobs:
           python-version: ${{ inputs.python_version }}
           architecture: ${{ inputs.python_architecture}}
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          version: 'latest'
-
       - name: Auth gcloud CLI for image-store
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: 'latest'
 
       - name: Configure docker to use the gcloud command-line tool as a credential helper
         run: gcloud auth configure-docker eu.gcr.io

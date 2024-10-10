@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Delete file
         run: |
-          URL = ${{ inputs.host }}/${{ inputs.ontology-type }}/${{ inputs.ontology }}${{ inputs.file_path }}
+          URL=${{ inputs.host }}/${{ inputs.ontology-type }}/${{ inputs.ontology }}${{ inputs.file_path }}
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -i -H "X-API-KEY: ${{ secrets.STATIC_RDF_SERVER_API_KEY }}" -X DELETE "$URL")
       
           if [ "$HTTP_STATUS" -eq 204 ]; then

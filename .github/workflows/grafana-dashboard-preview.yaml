@@ -62,4 +62,5 @@ jobs:
             Grafana Dashboard Previews:
 
             ${{ env.PREVIEW_URLS }}
+          comment-tag: "Grafana Dashboard Previews:"
           github-token: ${{ secrets.GH_TOKEN }}

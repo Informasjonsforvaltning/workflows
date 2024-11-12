@@ -3,27 +3,15 @@ name: Reusable deploy
 on:
   workflow_call:
     inputs:
-      actor:
-        required: false
-        type: string
-        default: ${{ github.actor }}
       app_name:
         required: true
         type: string
-      caller_sha:
-        required: false
-        type: string
-        default: ${{ github.sha }}
       cluster:
         required: true
         type: string
       environment:
         required: true
         type: string
-      repo:
-        required: false
-        type: string
-        default: ${{ github.repository }}
       snapshot_disk:
         required: false
         type: string
@@ -61,6 +49,14 @@ jobs:
     - name: Create short sha
       run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
+    - name: Create image name if monorepo
+      if: ${{ inputs.monorepo_app }}
+      run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}/${{ inputs.app_name }}" >> $GITHUB_ENV
+
+    - name: Create image name if not monorepo
+      if: ${{ !inputs.monorepo_app }}
+      run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" >> $GITHUB_ENV
+
     - name: Set slack webhook if dependabot
       if: github.actor == 'dependabot[bot]'
       run: echo "slack_webhook=${{ secrets.DEPENDABOT_SLACK_WEBHOOK_URL }}" >> $GITHUB_ENV
@@ -90,7 +86,7 @@ jobs:
       run: |
         helm repo add fdk https://informasjonsforvaltning.github.io/helm-chart/
         helm fetch --untar --untardir ./helm fdk/${{ inputs.app_name }}
-        helm template --set DOCKER_IMAGE_NAME="eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}:${{ github.sha }}" \
+        helm template --set DOCKER_IMAGE_NAME="${{ env.IMAGE_NAME }}:${{ github.sha }}" \
         -f ./helm/${{ inputs.app_name }}/values/${{ inputs.environment }}.yaml \
         ./helm/${{ inputs.app_name }}/ > ./kubectlapply.yaml
         chmod o+w ./kubectlapply.yaml

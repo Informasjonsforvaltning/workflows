@@ -3,20 +3,12 @@ name: Reusable deploy
 on:
   workflow_call:
     inputs:
-      actor:
-        required: false
-        type: string
-        default: ${{ github.actor }}
       app_name:
         required: false
         type: string
       image:
         required: false
         type: string
-      caller_sha:
-        required: false
-        type: string
-        default: ${{ github.sha }}
       cluster:
         required: true
         type: string
@@ -27,10 +19,6 @@ on:
         required: false
         type: boolean
         default: false
-      repo:
-        required: false
-        type: string
-        default: ${{ github.repository }}
       snapshot_disk:
         required: false
         type: string

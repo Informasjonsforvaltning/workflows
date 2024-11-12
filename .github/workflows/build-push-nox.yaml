@@ -47,10 +47,6 @@ on:
         required: false
         type: string
         default: x64
-      repo:
-        required: false
-        type: string
-        default: ${{ github.repository }}
       run_safety:
         required: false
         type: boolean
@@ -83,6 +79,9 @@ jobs:
       - name: Create short sha
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
+      - name: Create image name
+        run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" >> $GITHUB_ENV
+
       - name: Set up Python
         if: ${{ inputs.python_version }}
         uses: actions/setup-python@v5
@@ -90,18 +89,13 @@ jobs:
           python-version: ${{ inputs.python_version }}
           architecture: ${{ inputs.python_architecture}}
 
-      - name: Auth gcloud CLI for image-store
-        uses: google-github-actions/auth@v2
+      - name: Login to GitHub Container Registry
+        id: login
+        uses: docker/login-action@v3
         with:
-          credentials_json: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          version: 'latest'
-
-      - name: Configure docker to use the gcloud command-line tool as a credential helper
-        run: gcloud auth configure-docker eu.gcr.io
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Docker Buildx
         id: buildx
@@ -123,7 +117,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}
+          images: ${{ env.IMAGE_NAME }}
           flavor: |
             latest=${{ env.meta_flavor }}
           tags: |

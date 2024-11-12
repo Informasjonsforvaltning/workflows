@@ -28,10 +28,6 @@ on:
       coverage_file_path:
         required: false
         type: string
-      caller_sha:
-        required: false
-        type: string
-        default: ${{ github.sha }}
       dockerfile:
         required: false
         type: string
@@ -42,10 +38,10 @@ on:
       java_version:
         required: false
         type: string
-      repo:
+      monorepo_app:
         required: false
-        type: string
-        default: ${{ github.repository }}
+        type: boolean
+        default: false
     secrets:
       GH_TOKEN:
         required: true
@@ -73,8 +69,13 @@ jobs:
           path: ${{ inputs.cache_path }}
           key: ${{ inputs.cache_key }}
 
-      - name: Create short sha
-        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+      - name: Create image name if monorepo
+        if: ${{ inputs.monorepo_app }}
+        run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}/${{ inputs.app_name }}" >> $GITHUB_ENV
+
+      - name: Create image name if not monorepo
+        if: ${{ !inputs.monorepo_app }}
+        run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" >> $GITHUB_ENV
 
       - name: Setup java jdk
         if: ${{ inputs.java_version }}
@@ -94,18 +95,13 @@ jobs:
           files: ${{ inputs.coverage_file_path }}
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Auth gcloud CLI for image-store
-        uses: google-github-actions/auth@v2
+      - name: Login to GitHub Container Registry
+        id: login
+        uses: docker/login-action@v3
         with:
-          credentials_json: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          version: 'latest'
-
-      - name: Configure docker to use the gcloud command-line tool as a credential helper
-        run: gcloud auth configure-docker eu.gcr.io
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
 
       - name: Skip java tests if coverage has been run
         if: ${{ inputs.coverage_file_path && inputs.java_version }}
@@ -137,7 +133,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}
+          images: ${{ env.IMAGE_NAME }}
           flavor: |
             latest=${{ env.meta_flavor }}
           tags: |

@@ -12,6 +12,10 @@ on:
       environment:
         required: true
         type: string
+      monorepo_app:
+        required: false
+        type: boolean
+        default: false
       snapshot_disk:
         required: false
         type: string
@@ -49,13 +53,17 @@ jobs:
     - name: Create short sha
       run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
+    - name: Lowercase repository name
+      run: |
+        echo "REPO=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
+
     - name: Create image name if monorepo
       if: ${{ inputs.monorepo_app }}
-      run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}/${{ inputs.app_name }}" >> $GITHUB_ENV
+      run: echo "IMAGE_NAME=ghcr.io/${REPO}/${{ inputs.app_name }}" >> $GITHUB_ENV
 
     - name: Create image name if not monorepo
       if: ${{ !inputs.monorepo_app }}
-      run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" >> $GITHUB_ENV
+      run: echo "IMAGE_NAME=ghcr.io/${REPO}" >> $GITHUB_ENV
 
     - name: Set slack webhook if dependabot
       if: github.actor == 'dependabot[bot]'

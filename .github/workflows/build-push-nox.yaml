@@ -79,8 +79,12 @@ jobs:
       - name: Create short sha
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
+      - name: Lowercase repository name
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
+
       - name: Create image name
-        run: echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=ghcr.io/${REPO}" >> $GITHUB_ENV
 
       - name: Set up Python
         if: ${{ inputs.python_version }}

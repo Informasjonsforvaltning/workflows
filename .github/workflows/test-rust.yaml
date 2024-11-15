@@ -104,7 +104,7 @@ jobs:
           grcov . --binary-path ${{ inputs.grcov_binary_path }} -s . \-t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ${{ inputs.codecov_files }}
 
       - name: Codecov upload
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ inputs.codecov_files }}

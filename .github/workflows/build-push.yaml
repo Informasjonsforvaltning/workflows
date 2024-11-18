@@ -45,8 +45,6 @@ on:
     secrets:
       GH_TOKEN:
         required: true
-      GCP_SA_DIGDIR_FDK_GCR_KEY:
-        required: true
       CODECOV_TOKEN:
         required: false
 

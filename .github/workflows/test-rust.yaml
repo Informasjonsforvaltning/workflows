@@ -27,10 +27,6 @@ on:
         required: false
         type: string
         default: ./target/debug/deps/
-      repo:
-        required: false
-        type: string
-        default: ${{ github.repository }}
       rust_env:
         required: false
         type: string

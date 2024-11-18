@@ -3,17 +3,9 @@ name: Reusable nox build, test, publish & deploy
 on:
   workflow_call:
     inputs:
-      actor:
-        required: false
-        type: string
-        default: ${{ github.actor }}
       app_name:
         required: true
         type: string
-      caller_sha:
-        required: false
-        type: string
-        default: ${{ github.sha }}
       cluster:
         required: true
         type: string
@@ -64,10 +56,6 @@ on:
       python_architecture:
         required: true
         type: string
-      repo:
-        required: false
-        type: string
-        default: ${{ github.repository }}
       run_safety:
         required: false
         type: boolean
@@ -85,8 +73,6 @@ on:
         type: string
     secrets:
       GH_TOKEN:
-        required: true
-      GCP_SA_DIGDIR_FDK_GCR_KEY:
         required: true
       DIGDIR_FDK_AUTODEPLOY:
         required: true
@@ -120,6 +106,13 @@ jobs:
 
       - name: Create short sha
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+
+      - name: Lowercase repository name
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
+
+      - name: Create image name
+        run: echo "IMAGE_NAME=ghcr.io/${REPO}" >> $GITHUB_ENV
 
       - name: Set slack webhook if dependabot
         if: github.actor == 'dependabot[bot]'
@@ -158,19 +151,6 @@ jobs:
           python-version: ${{ inputs.python_version }}
           architecture: ${{ inputs.python_architecture}}
 
-      - name: Auth gcloud CLI for image-store
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          version: 'latest'
-
-      - name: Configure docker to use the gcloud command-line tool as a credential helper
-        run: gcloud auth configure-docker eu.gcr.io
-
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
@@ -199,7 +179,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}
+          images: ${{ env.IMAGE_NAME }}
           flavor: |
             latest=${{ env.meta_flavor }}
           tags: |
@@ -273,13 +253,21 @@ jobs:
           ${{ inputs.nox_env_3_name }}: ${{ secrets.NOX_ENV_3_VALUE }}
           ${{ inputs.nox_env_4_name }}: ${{ secrets.NOX_ENV_4_VALUE }}
 
+      - name: Login to GitHub Container Registry
+        id: login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
+
       - name: Tag and publish docker image to Google Cloud if built by nox
         if: ${{ inputs.nox_image }}
         run: |
-          docker tag eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}:test eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}:${{ github.sha }}
-          docker tag eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}:test eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}:${{ env.image_tag }}
-          docker rmi eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}:test
-          docker -- push eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }} -a
+          docker tag ${{ env.IMAGE_NAME }}:test ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker tag ${{ env.IMAGE_NAME }}:test ${{ env.IMAGE_NAME }}:${{ env.image_tag }}
+          docker rmi ${{ env.IMAGE_NAME }}:test
+          docker -- push ${{ env.IMAGE_NAME }} -a
 
       - name: Build and push image if not handled by nox
         if: ${{ !inputs.nox_image }}
@@ -301,7 +289,7 @@ jobs:
         run: |
           helm repo add fdk https://informasjonsforvaltning.github.io/helm-chart/
           helm fetch --untar --untardir ./helm fdk/${{ inputs.app_name }}
-          helm template --set DOCKER_IMAGE_NAME="eu.gcr.io/digdir-fdk-infra/${{ inputs.app_name }}:${{ github.sha }}" \
+          helm template --set DOCKER_IMAGE_NAME="${{ env.IMAGE_NAME }}:${{ github.sha }}" \
           -f ./helm/${{ inputs.app_name }}/values/${{ inputs.environment }}.yaml \
           ./helm/${{ inputs.app_name }}/ > ./kubectlapply.yaml
           chmod o+w ./kubectlapply.yaml
@@ -311,6 +299,11 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: 'latest'
 
       - name: Get credentials
         uses: google-github-actions/get-gke-credentials@v2

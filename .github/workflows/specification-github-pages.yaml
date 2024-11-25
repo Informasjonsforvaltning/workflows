@@ -15,6 +15,9 @@ on:
       program_pdf:
         required: false
         type: string
+      program:
+        required: false
+        type: string
       publish_branch:
         required: true
         type: string

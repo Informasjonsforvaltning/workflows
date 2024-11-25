@@ -23,6 +23,9 @@ on:
       program_pdf:
         required: false
         type: string
+      program:
+        required: false
+        type: string
     secrets:
       GH_TOKEN:
         required: true
@@ -38,18 +41,28 @@ jobs:
 
       - name: Build html
         id: adocbuild_html
+        if: ${{ inputs.program_html != '' }}
         uses: tonynv/asciidoctor-action@v2
         with:
           program: ${{ inputs.program_html }}
 
       - name: Build epub
         id: adocbuild_epub
+        if: ${{ inputs.program_epub != '' }}
         uses: tonynv/asciidoctor-action@v2
         with:
           program: ${{ inputs.program_epub }}
 
       - name: Build pdf
         id: adocbuild_pdf
+        if: ${{ inputs.program_pdf != '' }}
+        uses: tonynv/asciidoctor-action@v2
+        with:
+          program: ${{ inputs.program_pdf }}
+
+      - name: Build generic
+        id: adocbuild_pdf
+        if: ${{ inputs.program != '' }}
         uses: tonynv/asciidoctor-action@v2
         with:
           program: ${{ inputs.program_pdf }}

@@ -61,7 +61,7 @@ jobs:
       if: ${{ inputs.program != '' }}
       uses: tonynv/asciidoctor-action@v2
       with:
-        program: ${{ inputs.program_pdf }}
+        program: ${{ inputs.program }}
 
     - name: Deploy w/destination
       if: ${{ inputs.destination_dir != '' }}

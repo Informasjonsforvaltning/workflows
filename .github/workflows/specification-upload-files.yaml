@@ -65,7 +65,7 @@ jobs:
         if: ${{ inputs.program != '' }}
         uses: tonynv/asciidoctor-action@v2
         with:
-          program: ${{ inputs.program_pdf }}
+          program: ${{ inputs.program }}
 
       - name: Upload files to static-rdf-server
         uses: Informasjonsforvaltning/upload-files-to-static-rdf-server-action@v3.2.0

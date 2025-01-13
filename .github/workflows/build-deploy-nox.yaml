@@ -20,6 +20,10 @@ on:
       environment:
         required: true
         type: string
+      monorepo_app:
+        required: false
+        type: boolean
+        default: false
       node_version:
         required: false
         type: number
@@ -111,7 +115,12 @@ jobs:
         run: |
           echo "REPO=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
 
-      - name: Create image name
+      - name: Create image name if monorepo
+        if: ${{ inputs.monorepo_app }}
+        run: echo "IMAGE_NAME=ghcr.io/${REPO}/${{ inputs.app_name }}" >> $GITHUB_ENV
+
+      - name: Create image name if not monorepo
+        if: ${{ !inputs.monorepo_app }}
         run: echo "IMAGE_NAME=ghcr.io/${REPO}" >> $GITHUB_ENV
 
       - name: Set slack webhook if dependabot

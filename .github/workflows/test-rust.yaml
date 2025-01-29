@@ -14,11 +14,11 @@ on:
       cargo_rustflags:
         required: false
         type: string
-        default: "-Cinstrument-coverage -Ccodegen-units=1 -Cllvm-args=--inline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
+        default: "-Cinstrument-coverage -Ccodegen-units=1 -Cllvm-args=--inline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
       cargo_rustdocflags:
         required: false
         type: string
-        default: "-Cinstrument-coverage -Ccodegen-units=1 -Cllvm-args=--inline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
+        default: "-Cinstrument-coverage -Ccodegen-units=1 -Cllvm-args=--inline-threshold=0 -Clink-dead-code -Coverflow-checks=off"
       codecov_files:
         required: false
         type: string
@@ -33,7 +33,7 @@ on:
       toolchain_tc:
         required: false
         type: string
-        default: nightly
+        default: stable
       toolchain_profile:
         required: false
         type: string

@@ -92,7 +92,7 @@ jobs:
 
     - name: Set up Go (if Go)
       if: ${{ inputs.go-version }}
-      uses: actions/setup-go@v5.1.0
+      uses: actions/setup-go@v5.3.0
       with:
         go-version: ${{ inputs.go-version }}
 

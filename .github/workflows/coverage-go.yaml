@@ -40,7 +40,7 @@ jobs:
         run: go test -v -race -coverpkg=./... -coverprofile=coverage.txt -covermode=atomic ${{ inputs.test_path }}
 
       - name: Report coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ${{ inputs.coverage_file_path }}
           token: ${{ secrets.CODECOV_TOKEN }}

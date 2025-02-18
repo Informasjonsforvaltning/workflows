@@ -60,7 +60,7 @@ jobs:
         program: ${{ inputs.program_pdf }}
 
     - name: Build generic
-      id: adocbuild_pdf
+      id: adocbuild_generic
       if: ${{ inputs.program != '' }}
       uses: tonynv/asciidoctor-action@v2
       with:

@@ -67,7 +67,7 @@ jobs:
 
       - name: Report coverage
         if: ${{ inputs.coverage_file_path != '' }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ${{ inputs.coverage_file_path }}
           token: ${{ secrets.CODECOV_TOKEN }}

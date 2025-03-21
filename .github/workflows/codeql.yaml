@@ -27,7 +27,7 @@ on:
         required: true
 
 jobs:
-  codeql-scan:
+  codeql-code-scan:
     name: Analyze source code
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
@@ -64,7 +64,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ inputs.language }}
+          languages: ${{ inputs.language }}, actions
 
       - name: Autobuild if compiled language
         if: ${{ inputs.language == 'java' || inputs.language == 'go'}}

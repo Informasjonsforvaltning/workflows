@@ -27,7 +27,7 @@ on:
         required: true
 
 jobs:
-  codeql-code-scan:
+  codeql-scan:
     name: Analyze source code
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'

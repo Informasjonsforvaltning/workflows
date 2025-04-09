@@ -13,14 +13,14 @@ on:
         required: true
         type: string
       environment:
-        required: false
+        required: true
         type: string
       monorepo_app:
         required: false
         type: boolean
         default: false
       namespace:
-        required: false
+        required: true
         type: string
       snapshot_disk:
         required: false
@@ -45,6 +45,7 @@ jobs:
   kustomize-deploy:
     name: Deploy to ${{ inputs.namespace }} environment
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     env:
       notify_all: ""
       slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}

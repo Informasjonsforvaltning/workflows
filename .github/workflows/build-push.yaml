@@ -33,7 +33,7 @@ on:
         type: string
         default: Dockerfile
       environment:
-        required: false
+        required: true
         type: string
       java_version:
         required: false
@@ -43,7 +43,7 @@ on:
         type: boolean
         default: false
       namespace:
-        required: false
+        required: true
         type: string
     secrets:
       GH_TOKEN:
@@ -55,6 +55,7 @@ jobs:
   build:
     name: Build, test, publish ${{ inputs.namespace }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Checkout

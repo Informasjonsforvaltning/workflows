@@ -35,6 +35,10 @@ on:
       environment:
         required: true
         type: string
+      gh_environment:
+        required: false
+        type: string
+        default: ''
       java_version:
         required: false
         type: string

@@ -12,6 +12,10 @@ on:
       environment:
         required: true
         type: string
+      gh_environment:
+        required: false
+        type: string
+        default: ''
       monorepo_app:
         required: false
         type: boolean
@@ -39,6 +43,7 @@ jobs:
   helm-and-deploy:
     name: Deploy to ${{ inputs.environment }} environment
     runs-on: ubuntu-latest
+    environment: ${{ inputs.gh_environment }}
     env:
       notify_all: ''
       slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}

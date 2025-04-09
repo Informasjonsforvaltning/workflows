@@ -20,6 +20,10 @@ on:
       environment:
         required: true
         type: string
+      gh_environment:
+        required: false
+        type: string
+        default: ''
       monorepo_app:
         required: false
         type: boolean
@@ -97,6 +101,7 @@ jobs:
   build-and-deploy:
     name: Build, test, publish and deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.gh_environment }}
     env:
       notify_all: ''
       slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}

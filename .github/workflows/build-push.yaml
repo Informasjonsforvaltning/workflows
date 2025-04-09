@@ -33,7 +33,7 @@ on:
         type: string
         default: Dockerfile
       environment:
-        required: true
+        required: false
         type: string
       java_version:
         required: false
@@ -42,6 +42,9 @@ on:
         required: false
         type: boolean
         default: false
+      namespace:
+        required: false
+        type: string
     secrets:
       GH_TOKEN:
         required: true
@@ -50,7 +53,7 @@ on:
 
 jobs:
   build:
-    name: Build, test, publish ${{ inputs.environment }}
+    name: Build, test, publish ${{ inputs.namespace }}
     runs-on: ubuntu-latest
 
     steps:
@@ -120,15 +123,15 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Meta input
-        if: ${{ inputs.environment == 'prod' }}
+        if: ${{ inputs.namespace == 'prod' }}
         run: |
           echo "image_tag=latest" >> $GITHUB_ENV
           echo "meta_flavor=true" >> $GITHUB_ENV
 
       - name: Meta input if not prod
-        if: ${{ inputs.environment != 'prod' }}
+        if: ${{ inputs.namespace != 'prod' }}
         run: |
-          echo "image_tag=${{ inputs.environment }}_latest" >> $GITHUB_ENV
+          echo "image_tag=${{ inputs.namespace }}_latest" >> $GITHUB_ENV
           echo "meta_flavor=false" >> $GITHUB_ENV
 
       - name: Docker meta

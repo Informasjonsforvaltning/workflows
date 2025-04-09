@@ -13,12 +13,15 @@ on:
         required: true
         type: string
       environment:
-        required: true
+        required: false
         type: string
       monorepo_app:
         required: false
         type: boolean
         default: false
+      namespace:
+        required: false
+        type: string
       snapshot_disk:
         required: false
         type: string
@@ -40,7 +43,7 @@ on:
 
 jobs:
   kustomize-deploy:
-    name: Deploy to ${{ inputs.environment }} environment
+    name: Deploy to ${{ inputs.namespace }} environment
     runs-on: ubuntu-latest
     env:
       notify_all: ""
@@ -119,7 +122,7 @@ jobs:
       - name: Deploy with kustomize
         run: |
           find deploy -name '*.yaml' | xargs sed -i "s/\$(GIT_COMMIT_SHA)/${{ github.sha }}/"
-          cd deploy/${{ inputs.environment }}
+          cd deploy/${{ inputs.namespace }}
           if ${{ inputs.monorepo_app }}; then cd ${{ inputs.app_name }}; fi
           if [[ "${{ inputs.image }}" != "" ]]; then kustomize edit set image app=${{ inputs.image }}; fi
           kustomize build > .build.yaml
@@ -141,7 +144,7 @@ jobs:
           echo "slack_color=#a30200" >> $GITHUB_ENV
 
       - name: Notify all if failure in prod-workflow
-        if: always() && job.status == 'failure' && inputs.environment == 'prod'
+        if: always() && job.status == 'failure' && inputs.namespace == 'prod'
         run: echo "notify_all=@channel " >> $GITHUB_ENV
 
       - name: Set slack message (if cancelled)
@@ -165,7 +168,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "${{ env.notify_all }}${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.environment }}"
+                        "text": "${{ env.notify_all }}${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.namespace }}"
                       },
                       "fields": [
                         {

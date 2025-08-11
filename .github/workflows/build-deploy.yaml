@@ -63,14 +63,14 @@ jobs:
     steps:
       - name: Checkout LFS
         if: ${{ inputs.lfs }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           lfs: 'true'
           repository: ${{ github.repository }}
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GH_TOKEN }}

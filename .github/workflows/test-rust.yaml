@@ -76,10 +76,11 @@ jobs:
           files: ${{ inputs.docker_compose_file }}
 
       - name: Docker Compose
-        uses: isbang/compose-action@v2.2.0
+        uses: hoverkraft-tech/compose-action@v2.3.0
         if: steps.check_docker_compose.outputs.files_exists == 'true'
         with:
           compose-file: ${{ inputs.docker_compose_file }}
+          compose-flags: --verbose
 
       - name: Set rust test env
         run: echo "${{ inputs.rust_env }}" >> $GITHUB_ENV
@@ -94,7 +95,7 @@ jobs:
 
       - name: Download grcov
         run: |
-          cargo install grcov       
+          cargo install grcov
 
       - name: Run grcov
         run: |

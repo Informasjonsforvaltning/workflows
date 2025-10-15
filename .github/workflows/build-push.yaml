@@ -50,6 +50,10 @@ on:
         required: false
         type: boolean
         default: false
+      version:
+        required: false
+        type: string
+        description: 'Semantic version'
     secrets:
       GH_TOKEN:
         required: true
@@ -150,6 +154,7 @@ jobs:
           tags: |
             type=raw,value=${{ env.image_tag }}
             type=raw,value=${{ github.sha }},priority=1000
+            type=semver,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=ref,event=branch         
 
       - name: Build and push

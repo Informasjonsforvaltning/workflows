@@ -22,6 +22,10 @@ on:
         required: false
         type: string
         default: x64
+      working_directory:          
+        required: false
+        type: string
+        default: ./
     secrets:
       GH_TOKEN:
         required: true
@@ -69,6 +73,8 @@ jobs:
       - name: Autobuild if compiled language
         if: ${{ inputs.language == 'java' || inputs.language == 'go'}}
         uses: github/codeql-action/autobuild@v3
+        with:
+          working-directory: ${{ inputs.working_directory }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

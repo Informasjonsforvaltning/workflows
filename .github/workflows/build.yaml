@@ -48,7 +48,7 @@ jobs:
         if: ${{ inputs.java_version != '' }}
         uses: actions/setup-java@v5
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: ${{ inputs.java_version }}
 
       - name: Configure Maven settings
@@ -65,7 +65,7 @@ jobs:
               </mirror>
             </mirrors>
           </settings>
-          EOF    
+          EOF
 
       - name: Package & run tests if maven
         if: ${{ inputs.java_version != '' }}
@@ -81,12 +81,12 @@ jobs:
           context: ${{ inputs.build_context }}
           file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
           push: false
-          tags: 'test_build'
-          labels: 'test_build'
+          tags: "test_build"
+          labels: "test_build"
           cache-from: type=gha
           cache-to: type=gha, mode=max
           provenance: false
-          build-args:  |
+          build-args: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Build (with build env)
@@ -96,11 +96,11 @@ jobs:
           context: ${{ inputs.build_context }}
           file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
           push: false
-          tags: 'test_build'
-          labels: 'test_build'
+          tags: "test_build"
+          labels: "test_build"
           cache-from: type=gha
           cache-to: type=gha, mode=max
           provenance: false
-          build-args:  |
+          build-args: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             ${{ inputs.build_env_name }}=${{ inputs.build_env_value }}

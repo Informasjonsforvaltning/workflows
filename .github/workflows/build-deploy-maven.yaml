@@ -25,7 +25,7 @@ on:
       gh_environment:
         required: false
         type: string
-        default: ''
+        default: ""
       java_version:
         required: true
         type: string
@@ -54,60 +54,60 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.gh_environment }}
     env:
-      notify_all: ''
-      skip_tests: ''
+      notify_all: ""
+      skip_tests: ""
       slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v5
-      with:
-        repository: ${{ github.repository }}
-        token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GH_TOKEN }}
 
-    - name: Create short sha
-      run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+      - name: Create short sha
+        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
-    - name: Lowercase repository name
-      run: |
-        echo "REPO=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
+      - name: Lowercase repository name
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY@L}" >> $GITHUB_ENV
 
-    - name: Create image name
-      run: echo "IMAGE_NAME=ghcr.io/${REPO}" >> $GITHUB_ENV
+      - name: Create image name
+        run: echo "IMAGE_NAME=ghcr.io/${REPO}" >> $GITHUB_ENV
 
-    - name: Set slack webhook if dependabot
-      if: github.actor == 'dependabot[bot]'
-      run: echo "slack_webhook=${{ secrets.DEPENDABOT_SLACK_WEBHOOK_URL }}" >> $GITHUB_ENV
+      - name: Set slack webhook if dependabot
+        if: github.actor == 'dependabot[bot]'
+        run: echo "slack_webhook=${{ secrets.DEPENDABOT_SLACK_WEBHOOK_URL }}" >> $GITHUB_ENV
 
-    - name: Set event vars if PR
-      if: github.event_name == 'pull_request'
-      run: | 
-        echo "event_path=pull/${{ github.event.number }}" >> $GITHUB_ENV
-        echo "event_text=Pull request" >> $GITHUB_ENV
-        echo "event_name=${{ github.head_ref }}" >> $GITHUB_ENV
+      - name: Set event vars if PR
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "event_path=pull/${{ github.event.number }}" >> $GITHUB_ENV
+          echo "event_text=Pull request" >> $GITHUB_ENV
+          echo "event_name=${{ github.head_ref }}" >> $GITHUB_ENV
 
-    - name: Set event vars if push
-      if: github.event_name == 'push'
-      run: |
-        echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
-        echo "event_text=Push" >> $GITHUB_ENV
-        echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
+      - name: Set event vars if push
+        if: github.event_name == 'push'
+        run: |
+          echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
+          echo "event_text=Push" >> $GITHUB_ENV
+          echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
 
-    - name: Set env vars if none of the above
-      if: github.event_name != 'pull_request' && github.event_name != 'push'
-      run: |
-        echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
-        echo "event_text=${{ github.event_name }}" >> $GITHUB_ENV
-        echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
+      - name: Set env vars if none of the above
+        if: github.event_name != 'pull_request' && github.event_name != 'push'
+        run: |
+          echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
+          echo "event_text=${{ github.event_name }}" >> $GITHUB_ENV
+          echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
 
-    - name: Setup java jdk
-      if: ${{ inputs.java_version }}
-      uses: actions/setup-java@v5
-      with:
-        distribution: 'zulu'
-        java-version: ${{ inputs.java_version }}
+      - name: Setup java jdk
+        if: ${{ inputs.java_version }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: "zulu"
+          java-version: ${{ inputs.java_version }}
 
-    - name: Configure Maven settings
+      - name: Configure Maven settings
         run: |
           mkdir -p ~/.m2
           cat > ~/.m2/settings.xml <<'EOF'
@@ -121,211 +121,211 @@ jobs:
               </mirror>
             </mirrors>
           </settings>
-          EOF    
+          EOF
 
-    - name: Coverage test
-      if: ${{ inputs.coverage_file_path }}
-      run: mvn clean verify --no-transfer-progress
+      - name: Coverage test
+        if: ${{ inputs.coverage_file_path }}
+        run: mvn clean verify --no-transfer-progress
 
-    - name: Coverage upload
-      if: ${{ inputs.coverage_file_path }}
-      uses: codecov/codecov-action@v5
-      with:
-        files: ${{ inputs.coverage_file_path }}
+      - name: Coverage upload
+        if: ${{ inputs.coverage_file_path }}
+        uses: codecov/codecov-action@v5
+        with:
+          files: ${{ inputs.coverage_file_path }}
 
-    - name: Login to GitHub Container Registry
-      id: login
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GH_TOKEN }}
+      - name: Login to GitHub Container Registry
+        id: login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
 
-    - name: Skip tests if coverage has been run
-      if: ${{ inputs.coverage_file_path }}
-      run: echo "skip_tests=-DskipTests" >> $GITHUB_ENV
+      - name: Skip tests if coverage has been run
+        if: ${{ inputs.coverage_file_path }}
+        run: echo "skip_tests=-DskipTests" >> $GITHUB_ENV
 
-    - name: Package & run tests with maven
-      run: mvn clean install --no-transfer-progress ${{ env.skip_tests }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Package & run tests with maven
+        run: mvn clean install --no-transfer-progress ${{ env.skip_tests }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Cache Docker layers
-      uses: actions/cache@v4
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-    - name: Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Meta input
-      if: ${{ inputs.environment == 'prod' }}
-      run: |
-        echo "image_tag=latest" >> $GITHUB_ENV
-        echo "meta_flavor=true" >> $GITHUB_ENV
+      - name: Meta input
+        if: ${{ inputs.environment == 'prod' }}
+        run: |
+          echo "image_tag=latest" >> $GITHUB_ENV
+          echo "meta_flavor=true" >> $GITHUB_ENV
 
-    - name: Meta input if not prod
-      if: ${{ inputs.environment != 'prod' }}
-      run: | 
-        echo "image_tag=${{ inputs.environment }}_latest" >> $GITHUB_ENV
-        echo "meta_flavor=false" >> $GITHUB_ENV
+      - name: Meta input if not prod
+        if: ${{ inputs.environment != 'prod' }}
+        run: |
+          echo "image_tag=${{ inputs.environment }}_latest" >> $GITHUB_ENV
+          echo "meta_flavor=false" >> $GITHUB_ENV
 
-    - name: Docker meta
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.IMAGE_NAME }}
-        flavor: |
-          latest=${{ env.meta_flavor }}
-        tags: |
-          type=raw,value=${{ env.image_tag }}
-          type=raw,value=${{ github.sha }},priority=1000
-          type=ref,event=branch         
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=${{ env.meta_flavor }}
+          tags: |
+            type=raw,value=${{ env.image_tag }}
+            type=raw,value=${{ github.sha }},priority=1000
+            type=ref,event=branch
 
-    - name: Build and push with custom env var
-      if: ${{ inputs.build_env_name }}
-      uses: docker/build-push-action@v6
-      with:
-        context: ./
-        file: ./Dockerfile
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha, mode=max
-        provenance: false
-        build-args:  |
-          GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
-          ${{ inputs.build_env_name}}=${{ inputs.build_env_value }}
+      - name: Build and push with custom env var
+        if: ${{ inputs.build_env_name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
+          provenance: false
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
+            ${{ inputs.build_env_name}}=${{ inputs.build_env_value }}
 
-    - name: Build and push
-      if: ${{ !inputs.build_env_name }}
-      uses: docker/build-push-action@v6
-      with:
-        context: ./
-        file: ./Dockerfile
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha, mode=max
-        provenance: false
-        build-args:  |
-          GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
+      - name: Build and push
+        if: ${{ !inputs.build_env_name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
+          provenance: false
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
 
-    - name: Apply Helm template
-      run: |
-        helm repo add fdk https://informasjonsforvaltning.github.io/helm-chart/
-        helm fetch --untar --untardir ./helm fdk/${{ inputs.app_name }}
-        helm template --set DOCKER_IMAGE_NAME="${{ env.IMAGE_NAME }}:${{ github.sha }}" \
-        -f ./helm/${{ inputs.app_name }}/values/${{ inputs.environment }}.yaml \
-        ./helm/${{ inputs.app_name }}/ > ./kubectlapply.yaml
-        chmod o+w ./kubectlapply.yaml
-        cat kubectlapply.yaml
+      - name: Apply Helm template
+        run: |
+          helm repo add fdk https://informasjonsforvaltning.github.io/helm-chart/
+          helm fetch --untar --untardir ./helm fdk/${{ inputs.app_name }}
+          helm template --set DOCKER_IMAGE_NAME="${{ env.IMAGE_NAME }}:${{ github.sha }}" \
+          -f ./helm/${{ inputs.app_name }}/values/${{ inputs.environment }}.yaml \
+          ./helm/${{ inputs.app_name }}/ > ./kubectlapply.yaml
+          chmod o+w ./kubectlapply.yaml
+          cat kubectlapply.yaml
 
-    - name: Auth gcloud CLI for deploy
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
+      - name: Auth gcloud CLI for deploy
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.DIGDIR_FDK_AUTODEPLOY }}
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-      with:
-        version: 'latest'
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: "latest"
 
-    - name: Get credentials
-      uses: google-github-actions/get-gke-credentials@v3
-      with:
-        cluster_name: ${{ inputs.cluster }}
-        location: europe-north1-a
+      - name: Get credentials
+        uses: google-github-actions/get-gke-credentials@v3
+        with:
+          cluster_name: ${{ inputs.cluster }}
+          location: europe-north1-a
 
-    - name: Create snapshot if needed
-      if: ${{ inputs.snapshot_disk }}
-      run: |
-        gcloud compute --project ${{ inputs.cluster }} disks snapshot "${{ inputs.snapshot_disk }}" \
-        --snapshot-names "${{ inputs.snapshot_name }}-${{ env.SHORT_SHA }}" --zone "${{ inputs.snapshot_zone }}" &
-        wait
-        gcloud compute --project ${{ inputs.cluster }} snapshots add-labels "${{ inputs.snapshot_name }}-${{ env.SHORT_SHA }}" \
-        --labels="snapshotdays="14""
+      - name: Create snapshot if needed
+        if: ${{ inputs.snapshot_disk }}
+        run: |
+          gcloud compute --project ${{ inputs.cluster }} disks snapshot "${{ inputs.snapshot_disk }}" \
+          --snapshot-names "${{ inputs.snapshot_name }}-${{ env.SHORT_SHA }}" --zone "${{ inputs.snapshot_zone }}" &
+          wait
+          gcloud compute --project ${{ inputs.cluster }} snapshots add-labels "${{ inputs.snapshot_name }}-${{ env.SHORT_SHA }}" \
+          --labels="snapshotdays="14""
 
-    - name: Deploy to GCP & check status
-      run: |
-        kubectl apply -f ./kubectlapply.yaml --force
-        if ! kubectl --namespace=${{ inputs.environment }} rollout status deployment ${{ inputs.app_name }}; then
-          kubectl --namespace=${{ inputs.environment }} rollout undo deployment ${{ inputs.app_name }}
-          kubectl --namespace=${{ inputs.environment }} rollout status deployment ${{ inputs.app_name }}
-          exit 1
-        fi
+      - name: Deploy to GCP & check status
+        run: |
+          kubectl apply -f ./kubectlapply.yaml --force
+          if ! kubectl --namespace=${{ inputs.environment }} rollout status deployment ${{ inputs.app_name }}; then
+            kubectl --namespace=${{ inputs.environment }} rollout undo deployment ${{ inputs.app_name }}
+            kubectl --namespace=${{ inputs.environment }} rollout status deployment ${{ inputs.app_name }}
+            exit 1
+          fi
 
-    - name: Set slack message (if success)
-      if: always() && job.status == 'success'
-      run: |
-        echo "slack_emoji=:white_check_mark:" >> $GITHUB_ENV
-        echo "slack_text=Succeeded" >> $GITHUB_ENV
-        echo "slack_color=#2eb886" >> $GITHUB_ENV
+      - name: Set slack message (if success)
+        if: always() && job.status == 'success'
+        run: |
+          echo "slack_emoji=:white_check_mark:" >> $GITHUB_ENV
+          echo "slack_text=Succeeded" >> $GITHUB_ENV
+          echo "slack_color=#2eb886" >> $GITHUB_ENV
 
-    - name: Set slack message (if failure)
-      if: always() && job.status == 'failure'
-      run: |
-        echo "slack_emoji=:no_entry:" >> $GITHUB_ENV
-        echo "slack_text=Failed" >> $GITHUB_ENV
-        echo "slack_color=#a30200" >> $GITHUB_ENV
+      - name: Set slack message (if failure)
+        if: always() && job.status == 'failure'
+        run: |
+          echo "slack_emoji=:no_entry:" >> $GITHUB_ENV
+          echo "slack_text=Failed" >> $GITHUB_ENV
+          echo "slack_color=#a30200" >> $GITHUB_ENV
 
-    - name: Notify all if failure in prod-workflow
-      if: always() && job.status == 'failure' && inputs.environment == 'prod'
-      run: echo "notify_all=@channel " >> $GITHUB_ENV
+      - name: Notify all if failure in prod-workflow
+        if: always() && job.status == 'failure' && inputs.environment == 'prod'
+        run: echo "notify_all=@channel " >> $GITHUB_ENV
 
-    - name: Set slack message (if cancelled)
-      if: always() && job.status == 'cancelled'
-      run: |
-        echo "slack_emoji=:warning:" >> $GITHUB_ENV
-        echo "slack_text=Cancelled" >> $GITHUB_ENV
-        echo "slack_color=#daa038" >> $GITHUB_ENV
+      - name: Set slack message (if cancelled)
+        if: always() && job.status == 'cancelled'
+        run: |
+          echo "slack_emoji=:warning:" >> $GITHUB_ENV
+          echo "slack_text=Cancelled" >> $GITHUB_ENV
+          echo "slack_color=#daa038" >> $GITHUB_ENV
 
-    - name: Notify slack
-      id: slack
-      uses: slackapi/slack-github-action@v1
-      with:
-        payload: |
-          {
-            "attachments": [
-              {
-                "color": "${{ env.slack_color }}",
-                "blocks": [
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "${{ env.notify_all }}${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.environment }}"
-                    },
-                    "fields": [
-                      {
-                          "type": "mrkdwn",
-                          "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ env.SHORT_SHA }} >"
+      - name: Notify slack
+        id: slack
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ env.slack_color }}",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "${{ env.notify_all }}${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.environment }}"
                       },
-                      {
-                          "type": "mrkdwn",
-                          "text": "*author:* \n${{ github.actor }}"
-                      },
-                      {
-                          "type": "mrkdwn",
-                          "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow }}>"
-                      },
-                      {
-                          "type": "mrkdwn",
-                          "text": "*${{ env.event_text }}:* \n<${{ github.server_url }}/${{ github.repository }}/${{ env.event_path }} | ${{ env.event_name }}>"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ env.slack_webhook }}
-        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-      if: always()
+                      "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ env.SHORT_SHA }} >"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": "*author:* \n${{ github.actor }}"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow }}>"
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": "*${{ env.event_text }}:* \n<${{ github.server_url }}/${{ github.repository }}/${{ env.event_path }} | ${{ env.event_name }}>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.slack_webhook }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        if: always()

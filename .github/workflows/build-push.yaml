@@ -38,7 +38,7 @@ on:
       gh_environment:
         required: false
         type: string
-        default: ''
+        default: ""
       java_version:
         required: false
         type: string
@@ -53,7 +53,7 @@ on:
       version:
         required: false
         type: string
-        description: 'Semantic version'
+        description: "Semantic version"
     secrets:
       GH_TOKEN:
         required: true
@@ -96,7 +96,7 @@ jobs:
         if: ${{ inputs.java_version }}
         uses: actions/setup-java@v5
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: ${{ inputs.java_version }}
 
       - name: Configure Maven settings
@@ -113,7 +113,7 @@ jobs:
               </mirror>
             </mirrors>
           </settings>
-          EOF    
+          EOF
 
       - name: Coverage test
         if: ${{ inputs.coverage_file_path }}
@@ -171,7 +171,7 @@ jobs:
             type=raw,value=${{ env.image_tag }}
             type=raw,value=${{ github.sha }},priority=1000
             type=semver,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
-            type=ref,event=branch         
+            type=ref,event=branch
 
       - name: Build and push
         if: ${{ !inputs.build_env }}
@@ -185,7 +185,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha, mode=max
           provenance: false
-          build-args:  |
+          build-args: |
             GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
 
       - name: Build (with build env) and push
@@ -200,6 +200,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha, mode=max
           provenance: false
-          build-args:  |
+          build-args: |
             GITHUB_TOKEN=${{ secrets.GH_TOKEN }}
             ${{ inputs.build_env_name }}=${{ inputs.build_env_value }}

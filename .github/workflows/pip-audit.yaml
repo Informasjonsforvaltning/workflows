@@ -38,7 +38,14 @@ jobs:
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry config virtualenvs.in-project true
           poetry install
-          
+
+      - name: Upgrade pip in virtual environment
+        run: |
+          if [ -n "${{ inputs.venv_name }}" ]; then
+            .venv/${{ inputs.venv_name }}/bin/pip install --upgrade --constraint=.github/workflows/constraints.txt pip
+          else
+            .venv/bin/pip install --upgrade --constraint=.github/workflows/constraints.txt pip
+          fi
 
       - name: Run audit
         uses: pypa/gh-action-pip-audit@v1.1.0

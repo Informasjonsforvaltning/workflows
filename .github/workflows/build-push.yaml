@@ -67,14 +67,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GH_TOKEN }}
           submodules: ${{ inputs.submodule }}
 
       - name: Restoring Cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         if: ${{ inputs.cache_path != '' && inputs.cache_key != '' }}
         with:
           path: ${{ inputs.cache_path }}
@@ -94,7 +94,7 @@ jobs:
 
       - name: Setup java jdk
         if: ${{ inputs.java_version }}
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: "zulu"
           java-version: ${{ inputs.java_version }}
@@ -121,14 +121,14 @@ jobs:
 
       - name: Coverage upload
         if: ${{ inputs.coverage_file_path }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
         with:
           files: ${{ inputs.coverage_file_path }}
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Login to GitHub Container Registry
         id: login
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -146,7 +146,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Meta input
         if: ${{ inputs.environment == 'prod' }}
@@ -162,7 +162,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: ${{ env.IMAGE_NAME }}
           flavor: |
@@ -175,7 +175,7 @@ jobs:
 
       - name: Build and push
         if: ${{ !inputs.build_env }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: ${{ inputs.build_context }}
           file: ${{ inputs.build_context }}${{ inputs.dockerfile }}
@@ -190,7 +190,7 @@ jobs:
 
       - name: Build (with build env) and push
         if: ${{ inputs.build_env }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: ${{ inputs.build_context }}
           file: ${{ inputs.build_context }}${{ inputs.dockerfile }}

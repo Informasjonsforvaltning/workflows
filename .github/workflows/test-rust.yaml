@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GH_TOKEN }}
@@ -71,12 +71,12 @@ jobs:
 
       - name: Check docker_compose_file existence
         id: check_docker_compose
-        uses: andstor/file-existence-action@v3
+        uses: andstor/file-existence-action@558493d6c74bf472d87c84eab196434afc2fa029 # v3
         with:
           files: ${{ inputs.docker_compose_file }}
 
       - name: Docker Compose
-        uses: hoverkraft-tech/compose-action@v2.6.0
+        uses: hoverkraft-tech/compose-action@d2bee4f07e8ca410d6b196d00f90c12e7d48c33a # v2.6.0
         if: steps.check_docker_compose.outputs.files_exists == 'true'
         with:
           compose-file: ${{ inputs.docker_compose_file }}
@@ -102,7 +102,7 @@ jobs:
           grcov . --binary-path ${{ inputs.grcov_binary_path }} -s . \-t lcov --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o ${{ inputs.codecov_files }}
 
       - name: Codecov upload
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ inputs.codecov_files }}

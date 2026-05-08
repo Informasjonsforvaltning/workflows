@@ -36,7 +36,7 @@ jobs:
     name: asciidoctor build
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
         submodules: true
         fetch-depth: 0
@@ -49,34 +49,34 @@ jobs:
     - name: Build html
       id: adocbuild_html
       if: ${{ inputs.program_html != '' }}
-      uses: tonynv/asciidoctor-action@v2
+      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
       with:
         program: ${{ inputs.program_html }}
 
     - name: Build epub
       id: adocbuild_epub
       if: ${{ inputs.program_epub != '' }}
-      uses: tonynv/asciidoctor-action@v2
+      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
       with:
         program: ${{ inputs.program_epub }}
 
     - name: Build pdf
       id: adocbuild_pdf
       if: ${{ inputs.program_pdf != '' }}
-      uses: tonynv/asciidoctor-action@v2
+      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
       with:
         program: ${{ inputs.program_pdf }}
 
     - name: Build generic
       id: adocbuild_generic
       if: ${{ inputs.program != '' }}
-      uses: tonynv/asciidoctor-action@v2
+      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
       with:
         program: ${{ inputs.program }}
 
     - name: Deploy w/destination
       if: ${{ inputs.destination_dir != '' }}
-      uses: peaceiris/actions-gh-pages@v4
+      uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4
       with:
         github_token: ${{ secrets.GH_TOKEN }}
         publish_branch: ${{ inputs.publish_branch }}
@@ -85,7 +85,7 @@ jobs:
 
     - name: Deploy w/o destination
       if: ${{ inputs.destination_dir == '' }}
-      uses: peaceiris/actions-gh-pages@v4
+      uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4
       with:
         github_token: ${{ secrets.GH_TOKEN }}
         publish_branch: ${{ inputs.publish_branch }}

@@ -49,30 +49,30 @@ jobs:
     - name: Build html
       id: adocbuild_html
       if: ${{ inputs.program_html != '' }}
-      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
+      uses: docker://asciidoctor/docker-asciidoctor:1.106@sha256:6266e05784c2d8ece9d9fe5e593b12c3beebebbc467135fd6f4a56269c93cea3
       with:
-        program: ${{ inputs.program_html }}
+        args: bash -c "${{ inputs.program_html }}"
 
     - name: Build epub
       id: adocbuild_epub
       if: ${{ inputs.program_epub != '' }}
-      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
+      uses: docker://asciidoctor/docker-asciidoctor:1.106@sha256:6266e05784c2d8ece9d9fe5e593b12c3beebebbc467135fd6f4a56269c93cea3
       with:
-        program: ${{ inputs.program_epub }}
+        args: bash -c "${{ inputs.program_epub }}"
 
     - name: Build pdf
       id: adocbuild_pdf
       if: ${{ inputs.program_pdf != '' }}
-      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
+      uses: docker://asciidoctor/docker-asciidoctor:1.106@sha256:6266e05784c2d8ece9d9fe5e593b12c3beebebbc467135fd6f4a56269c93cea3
       with:
-        program: ${{ inputs.program_pdf }}
+        args: bash -c "${{ inputs.program_pdf }}"
 
     - name: Build generic
       id: adocbuild_generic
       if: ${{ inputs.program != '' }}
-      uses: tonynv/asciidoctor-action@755dc03a42aee715c3705fc31d2ca106b7ee90fd # v2
+      uses: docker://asciidoctor/docker-asciidoctor:1.106@sha256:6266e05784c2d8ece9d9fe5e593b12c3beebebbc467135fd6f4a56269c93cea3
       with:
-        program: ${{ inputs.program }}
+        args: bash -c "${{ inputs.program }}"
 
     - name: Deploy w/destination
       if: ${{ inputs.destination_dir != '' }}

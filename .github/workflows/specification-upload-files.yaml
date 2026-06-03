@@ -34,6 +34,10 @@ on:
         required: false
         type: boolean
         default: true
+      version:
+        required: false
+        type: string
+        default: ''
     secrets:
       GH_TOKEN:
         required: false
@@ -90,6 +94,7 @@ jobs:
         with:
           ontology-type: ${{ inputs.ontology-type }}
           ontology: ${{ inputs.ontology }}
+          version: ${{ inputs.version }}
           host: ${{ inputs.host }}
           api-key: ${{ secrets.STATIC_RDF_SERVER_API_KEY }}
           files: |

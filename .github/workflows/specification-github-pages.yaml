@@ -15,6 +15,10 @@ on:
       program_pdf:
         required: false
         type: string
+      program_pdf_continue_on_error:
+        required: false
+        type: boolean
+        default: false
       program:
         required: false
         type: string
@@ -68,6 +72,7 @@ jobs:
     - name: Build pdf
       id: adocbuild_pdf
       if: ${{ inputs.program_pdf != '' }}
+      continue-on-error: ${{ inputs.program_pdf_continue_on_error }}
       uses: docker://asciidoctor/docker-asciidoctor:1.106@sha256:6266e05784c2d8ece9d9fe5e593b12c3beebebbc467135fd6f4a56269c93cea3
       with:
         args: bash -ec "${{ inputs.program_pdf }}"

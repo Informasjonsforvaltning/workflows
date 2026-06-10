@@ -1,0 +1,116 @@
+name: Publish to npm
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        required: false
+        type: string
+        default: '22.22.1'
+      version_bump:
+        description: 'patch | minor | major'
+        required: false
+        type: string
+        default: patch
+      package_manager:
+        description: 'yarn | npm'
+        required: false
+        type: string
+        default: yarn
+      test_command:
+        description: 'Command to run tests. When empty, yarn projects auto-detect a "test" script.'
+        required: false
+        type: string
+      extra_setup_command:
+        description: 'Optional command run after install, before tests (e.g. "yarn playwright install --with-deps").'
+        required: false
+        type: string
+    secrets:
+      BOT_ACCESS_TOKEN:
+        required: true
+
+jobs:
+  release:
+    if: github.actor != 'fdk-bot'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.BOT_ACCESS_TOKEN }}
+
+      - name: Enable Corepack (Yarn 4)
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: ${{ inputs.node_version }}
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Upgrade npm for trusted publishing
+        run: npm i -g npm@^11.5.1
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ inputs.package_manager }}" = "npm" ]; then
+            npm ci
+          else
+            yarn install --immutable
+          fi
+
+      - name: Extra setup
+        if: ${{ inputs.extra_setup_command != '' }}
+        run: ${{ inputs.extra_setup_command }}
+
+      - name: Run tests
+        if: ${{ inputs.test_command != '' }}
+        run: ${{ inputs.test_command }}
+
+      - name: Run tests (auto-detect)
+        if: ${{ inputs.test_command == '' && inputs.package_manager == 'yarn' }}
+        run: |
+          if yarn run -T test -v >/dev/null 2>&1; then
+            yarn test --run
+          else
+            echo "No tests configured, skipping"
+          fi
+
+      - name: Build package
+        run: |
+          if [ "${{ inputs.package_manager }}" = "npm" ]; then
+            npm run build
+          else
+            yarn build
+          fi
+
+      - name: Configure git user
+        run: |
+          git config user.name "fdk-bot"
+          git config user.email "fdk-bot@users.noreply.github.com"
+
+      - name: Bump version and create tag
+        run: |
+          npm version ${{ inputs.version_bump }} -m "ci: release %s"
+
+      - name: Publish to npm
+        run: |
+          if npm publish --access public; then
+            echo "✅ Package published successfully"
+          else
+            echo "❌ npm publish failed, rolling back git tag"
+            git tag -d "v$(node -p "require('./package.json').version")"
+            exit 1
+          fi
+
+      - name: Push changes and tags
+        run: |
+          if git push origin HEAD:main --follow-tags; then
+            echo "✅ Changes and tags pushed successfully"
+          else
+            echo "❌ Failed to push changes to repository"
+            exit 1
+          fi

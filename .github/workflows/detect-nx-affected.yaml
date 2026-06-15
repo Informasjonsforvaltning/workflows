@@ -1,0 +1,115 @@
+name: Detect Nx affected
+# Reusable workflow that resolves which Nx apps are affected by the current
+# change and emits them as a build matrix. Optionally runs lint/test in the
+# same job so the (expensive) yarn install is shared with detection.
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        required: false
+        type: string
+        default: '22.14.0'
+      submodules:
+        description: 'Checkout submodules and fast-forward them to origin/main.'
+        required: false
+        type: boolean
+        default: false
+      immutable_install:
+        description: 'Use "yarn install --immutable" (false uses --no-immutable).'
+        required: false
+        type: boolean
+        default: true
+      matrix_command:
+        description: 'Yarn script that prints the affected apps as a JSON array.'
+        required: false
+        type: string
+        default: matrix
+      matrix_key:
+        description: 'Key the JSON array is wrapped under for strategy.matrix.'
+        required: false
+        type: string
+        default: appname
+      run_lint:
+        required: false
+        type: boolean
+        default: true
+      lint_command:
+        required: false
+        type: string
+        default: lint --configuration=ci
+      run_test:
+        required: false
+        type: boolean
+        default: true
+      test_command:
+        required: false
+        type: string
+        default: test --configuration=ci
+    outputs:
+      matrix:
+        description: 'JSON object {<matrix_key>: [...affected apps]} for strategy.matrix.'
+        value: ${{ jobs.detect.outputs.matrix }}
+      changed:
+        description: 'JSON array of affected apps ("[]" when nothing is affected).'
+        value: ${{ jobs.detect.outputs.changed }}
+
+jobs:
+  detect:
+    name: Detect affected
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      changed: ${{ steps.set-matrix.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          # Fetch all branches and commits so Nx affected has a base to compare against.
+          fetch-depth: 0
+          submodules: ${{ inputs.submodules }}
+
+      - name: Update submodules to latest main
+        if: ${{ inputs.submodules }}
+        run: |
+          git submodule foreach --recursive git fetch origin
+          git submodule foreach --recursive git checkout origin/main
+
+      - name: Set SHAs
+        uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5.0.1
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: 'yarn'
+
+      - name: Yarn install
+        run: |
+          if [ "${{ inputs.immutable_install }}" = "true" ]; then
+            yarn install --immutable
+          else
+            yarn install --no-immutable
+          fi
+
+      - name: Caching Nx
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: node_modules/.cache
+          key: cache-nx-${{ hashFiles('yarn.lock') }}
+
+      - id: set-matrix
+        run: |
+          affected=$(yarn --silent run ${{ inputs.matrix_command }})
+          echo "matrix={\"${{ inputs.matrix_key }}\":$affected}" >> $GITHUB_OUTPUT
+          echo "changed=$affected" >> $GITHUB_OUTPUT
+
+      - name: Lint
+        if: ${{ inputs.run_lint }}
+        run: yarn run ${{ inputs.lint_command }}
+
+      - name: Test
+        if: ${{ inputs.run_test }}
+        run: yarn run ${{ inputs.test_command }}

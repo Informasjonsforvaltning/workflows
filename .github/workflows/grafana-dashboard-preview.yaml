@@ -56,11 +56,11 @@ jobs:
           echo 'EOF' >> $GITHUB_ENV
 
       - name: Comment Preview URLs in PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         with:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          header: "Grafana Dashboard Previews:"
           message: |
             Grafana Dashboard Previews:
 
             ${{ env.PREVIEW_URLS }}
-          comment-tag: "Grafana Dashboard Previews:"
-          github-token: ${{ secrets.GH_TOKEN }}

@@ -32,13 +32,14 @@ jobs:
 
       - name: Install Jsonnet Bundler
         run: |
-          curl -Lo /usr/local/bin/jb https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v0.5.1/jb-linux-amd64
+          curl -fL --retry 3 --retry-delay 2 -o /usr/local/bin/jb https://github.com/jsonnet-bundler/jsonnet-bundler/releases/download/v0.5.1/jb-linux-amd64
           chmod +x /usr/local/bin/jb
 
       - name: Install Grizzly
         run: |
-          curl -Lo /usr/local/bin/grr https://github.com/grafana/grizzly/releases/download/v0.2.0/grr-linux-amd64
+          curl -fL --retry 3 --retry-delay 2 -o /usr/local/bin/grr https://github.com/grafana-cold-storage/grizzly/releases/download/v0.2.0/grr-linux-amd64
           chmod +x /usr/local/bin/grr
+          file /usr/local/bin/grr | grep -q 'ELF'
 
       - name: Create Snapshots
         env:

@@ -76,24 +76,30 @@ jobs:
 
     - name: Set event vars if PR
       if: github.event_name == 'pull_request'
+      env:
+        HEAD_REF: ${{ github.head_ref }}
       run: |
         echo "event_path=pull/${{ github.event.number }}" >> $GITHUB_ENV
         echo "event_text=Pull request" >> $GITHUB_ENV
-        echo "event_name=${{ github.head_ref }}" >> $GITHUB_ENV
+        printf 'event_name=%s\n' "$(printf '%s' "$HEAD_REF" | tr -d '"\\')" >> $GITHUB_ENV
 
     - name: Set event vars if push
       if: github.event_name == 'push'
+      env:
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
         echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
         echo "event_text=Push" >> $GITHUB_ENV
-        echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV
+        printf 'event_name=%s\n' "$(printf '%s' "$COMMIT_MESSAGE" | sed 1q | tr -d '"\\')" >> $GITHUB_ENV
 
     - name: Set env vars if none of the above
       if: github.event_name != 'pull_request' && github.event_name != 'push'
+      env:
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
         echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
         echo "event_text=${{ github.event_name }}" >> $GITHUB_ENV
-        echo "event_name=${{ github.event.head_commit.message }}" | sed 1q >> $GITHUB_ENV        
+        printf 'event_name=%s\n' "$(printf '%s' "$COMMIT_MESSAGE" | sed 1q | tr -d '"\\')" >> $GITHUB_ENV
 
     - name: Apply Helm template
       run: |

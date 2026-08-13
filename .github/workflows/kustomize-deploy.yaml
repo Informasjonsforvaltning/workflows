@@ -59,7 +59,11 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Create short sha
-        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          echo "COMMIT_SHA=$HEAD_SHA" >> $GITHUB_ENV
+          echo "SHORT_SHA=${HEAD_SHA:0:7}" >> $GITHUB_ENV
 
       - name: Set slack webhook if dependabot
         if: github.actor == 'dependabot[bot]'
@@ -192,28 +196,7 @@ jobs:
                       "elements": [
                         {
                           "type": "mrkdwn",
-                          "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} #${{ github.run_number }}>  ·  ${{ env.event_text }}: <${{ github.server_url }}/${{ github.repository }}/${{ env.event_path }}|${{ env.event_name }}>  ·  `${{ env.SHORT_SHA }}`  ·  ${{ github.actor }}"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "actions",
-                      "elements": [
-                        {
-                          "type": "button",
-                          "text": {
-                            "type": "plain_text",
-                            "text": "View run"
-                          },
-                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                        },
-                        {
-                          "type": "button",
-                          "text": {
-                            "type": "plain_text",
-                            "text": "View commit"
-                          },
-                          "url": "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+                          "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} #${{ github.run_number }}>  ·  ${{ env.event_text }}: <${{ github.server_url }}/${{ github.repository }}/${{ env.event_path }}|${{ env.event_name }}>  ·  <${{ github.server_url }}/${{ github.repository }}/commit/${{ env.COMMIT_SHA }}|${{ env.SHORT_SHA }}>  ·  ${{ github.actor }}"
                         }
                       ]
                     }

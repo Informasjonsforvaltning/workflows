@@ -114,7 +114,11 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Create short sha
-        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          echo "COMMIT_SHA=$HEAD_SHA" >> $GITHUB_ENV
+          echo "SHORT_SHA=${HEAD_SHA:0:7}" >> $GITHUB_ENV
 
       - name: Lowercase repository name
         run: |
@@ -139,7 +143,9 @@ jobs:
         run: |
           echo "event_path=pull/${{ github.event.number }}" >> $GITHUB_ENV
           echo "event_text=Pull request" >> $GITHUB_ENV
-          printf 'event_name=%s\n' "$(printf '%s' "$HEAD_REF" | tr -d '"\\')" >> $GITHUB_ENV
+          event_name="$(printf '%s' "$HEAD_REF" | tr -d '"\\')"
+          if [ "${#event_name}" -gt 72 ]; then event_name="${event_name:0:71}…"; fi
+          printf 'event_name=%s\n' "$event_name" >> $GITHUB_ENV
 
       - name: Set event vars if push
         if: github.event_name == 'push'
@@ -148,7 +154,9 @@ jobs:
         run: |
           echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
           echo "event_text=Push" >> $GITHUB_ENV
-          printf 'event_name=%s\n' "$(printf '%s' "$COMMIT_MESSAGE" | sed 1q | tr -d '"\\')" >> $GITHUB_ENV
+          event_name="$(printf '%s' "$COMMIT_MESSAGE" | sed 1q | tr -d '"\\')"
+          if [ "${#event_name}" -gt 72 ]; then event_name="${event_name:0:71}…"; fi
+          printf 'event_name=%s\n' "$event_name" >> $GITHUB_ENV
 
       - name: Set env vars if none of the above
         if: github.event_name != 'pull_request' && github.event_name != 'push'
@@ -157,7 +165,9 @@ jobs:
         run: |
           echo "event_path=commit/${{ github.sha }}" >> $GITHUB_ENV
           echo "event_text=${{ github.event_name }}" >> $GITHUB_ENV
-          printf 'event_name=%s\n' "$(printf '%s' "$COMMIT_MESSAGE" | sed 1q | tr -d '"\\')" >> $GITHUB_ENV
+          event_name="$(printf '%s' "$COMMIT_MESSAGE" | sed 1q | tr -d '"\\')"
+          if [ "${#event_name}" -gt 72 ]; then event_name="${event_name:0:71}…"; fi
+          printf 'event_name=%s\n' "$event_name" >> $GITHUB_ENV
 
       - name: Set up node (if required)
         if: ${{ inputs.node_version > 0 }}
@@ -391,24 +401,15 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "${{ env.notify_all }}${{ env.slack_emoji }} ${{ env.slack_text }} GitHub Actions\n*Application:* ${{ inputs.app_name }}\n*Environment:* ${{ inputs.environment }}"
-                      },
-                      "fields": [
+                        "text": "${{ env.notify_all }}${{ env.slack_emoji }} *${{ env.slack_text }}* — `${{ inputs.app_name }}` to *${{ inputs.environment }}*"
+                      }
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
                         {
-                            "type": "mrkdwn",
-                            "text": "*commit:* \n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} | ${{ env.SHORT_SHA }} >"
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": "*author:* \n${{ github.actor }}"
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": "*workflow:* \n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} | ${{ github.workflow }}>"
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": "*${{ env.event_text }}:* \n<${{ github.server_url }}/${{ github.repository }}/${{ env.event_path }} | ${{ env.event_name }}>"
+                          "type": "mrkdwn",
+                          "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} #${{ github.run_number }}>  ·  ${{ env.event_text }}: <${{ github.server_url }}/${{ github.repository }}/${{ env.event_path }}|${{ env.event_name }}>  ·  <${{ github.server_url }}/${{ github.repository }}/commit/${{ env.COMMIT_SHA }}|${{ env.SHORT_SHA }}>  ·  ${{ github.actor }}"
                         }
                       ]
                     }

@@ -6,3 +6,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      # Sub-actions share a commit SHA; init/autobuild/analyze must
+      # be bumped together or CodeQL fails on a version mismatch.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"

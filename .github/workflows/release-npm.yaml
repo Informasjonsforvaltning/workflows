@@ -24,6 +24,11 @@ on:
         description: 'Optional command run after install, before tests (e.g. "yarn playwright install --with-deps").'
         required: false
         type: string
+      run_install_scripts:
+        description: 'Run dependency lifecycle scripts (postinstall etc.) during install. Off by default so third-party code cannot reach the OIDC identity or the bot token.'
+        required: false
+        type: boolean
+        default: false
     secrets:
       BOT_ACCESS_TOKEN:
         required: true
@@ -32,11 +37,6 @@ jobs:
   release:
     if: github.actor != 'fdk-bot'
     runs-on: ubuntu-latest
-    env:
-      # setup-node v7 no longer exports a dummy token, so Yarn 1 fails on the
-      # unresolved ${NODE_AUTH_TOKEN} in the generated .npmrc. Publishing uses
-      # OIDC trusted publishing regardless of this value.
-      NODE_AUTH_TOKEN: XXXXX-XXXXX-XXXXX-XXXXX
     permissions:
       contents: write
       id-token: write
@@ -46,25 +46,40 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.BOT_ACCESS_TOKEN }}
+          # Do not leave the bot token on disk for later steps (install scripts,
+          # build, tests). It is injected only in the final push step.
+          persist-credentials: false
 
       - name: Enable Corepack (Yarn 4)
         run: corepack enable
 
       - name: Setup Node.js
+        # No registry-url: publishing uses OIDC trusted publishing, which npm
+        # resolves at publish time without an .npmrc auth entry. Leaving it out
+        # also avoids the ${NODE_AUTH_TOKEN} placeholder that Yarn 1 rejects.
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ inputs.node_version }}
-          registry-url: 'https://registry.npmjs.org/'
+          package-manager-cache: false
 
-      - name: Upgrade npm for trusted publishing
-        run: npm i -g npm@^11.5.1
+      - name: Install npm with trusted publishing support
+        run: npm i -g npm@11.19.1
 
       - name: Install dependencies
         run: |
+          run_scripts="${{ inputs.run_install_scripts }}"
           if [ "${{ inputs.package_manager }}" = "npm" ]; then
-            npm ci
+            flags=""
+            [ "$run_scripts" = "true" ] || flags="--ignore-scripts"
+            npm ci $flags
+          elif [ "$(yarn --version | cut -d. -f1)" = "1" ]; then
+            flags=""
+            [ "$run_scripts" = "true" ] || flags="--ignore-scripts"
+            yarn install --frozen-lockfile $flags
           else
-            yarn install --immutable
+            flags=""
+            [ "$run_scripts" = "true" ] || flags="--mode=skip-build"
+            yarn install --immutable $flags
           fi
 
       - name: Extra setup
@@ -112,8 +127,10 @@ jobs:
           fi
 
       - name: Push changes and tags
+        env:
+          BOT_ACCESS_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
         run: |
-          if git push origin HEAD:main --follow-tags; then
+          if git push "https://x-access-token:${BOT_ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main --follow-tags; then
             echo "✅ Changes and tags pushed successfully"
           else
             echo "❌ Failed to push changes to repository"

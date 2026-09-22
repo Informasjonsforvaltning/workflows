@@ -32,6 +32,11 @@ jobs:
   release:
     if: github.actor != 'fdk-bot'
     runs-on: ubuntu-latest
+    env:
+      # setup-node v7 no longer exports a dummy token, so Yarn 1 fails on the
+      # unresolved ${NODE_AUTH_TOKEN} in the generated .npmrc. Publishing uses
+      # OIDC trusted publishing regardless of this value.
+      NODE_AUTH_TOKEN: XXXXX-XXXXX-XXXXX-XXXXX
     permissions:
       contents: write
       id-token: write
@@ -46,7 +51,7 @@ jobs:
         run: corepack enable
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ inputs.node_version }}
           registry-url: 'https://registry.npmjs.org/'

@@ -36,6 +36,11 @@ on:
 jobs:
   release:
     if: github.actor != 'fdk-bot'
+    # Queue releases per caller repo. Canceling an in-progress run can leave a
+    # package on npm without the matching commit on main.
+    concurrency:
+      group: release-npm-${{ github.repository }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -47,7 +52,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.BOT_ACCESS_TOKEN }}
           # Do not leave the bot token on disk for later steps (install scripts,
-          # build, tests). It is injected only in the final push step.
+          # build, tests). It is injected only when fetching main and pushing.
           persist-credentials: false
 
       - name: Enable Corepack (Yarn 4)
@@ -112,11 +117,28 @@ jobs:
           git config user.name "fdk-bot"
           git config user.email "fdk-bot@users.noreply.github.com"
 
+      # Two merges can start two runs from package.json at the same version.
+      # Only the run that is still the tip of main publishes.
+      - name: Decide whether this commit is still the tip of main
+        id: tip
+        env:
+          BOT_ACCESS_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
+        run: |
+          git fetch "https://x-access-token:${BOT_ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" +main:refs/remotes/origin/main
+          if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Main has moved past this commit. A later run will publish."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Bump version and create tag
+        if: steps.tip.outputs.release == 'true'
         run: |
           npm version ${{ inputs.version_bump }} -m "ci: release %s"
 
       - name: Publish to npm
+        if: steps.tip.outputs.release == 'true'
         run: |
           if npm publish --access public; then
             echo "✅ Package published successfully"
@@ -127,6 +149,7 @@ jobs:
           fi
 
       - name: Push changes and tags
+        if: steps.tip.outputs.release == 'true'
         env:
           BOT_ACCESS_TOKEN: ${{ secrets.BOT_ACCESS_TOKEN }}
         run: |

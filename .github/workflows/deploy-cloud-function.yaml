@@ -52,7 +52,6 @@ jobs:
     env:
       notify_all: ''
       slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-      ENV_VARS: ${{ secrets.ENV_VARS }}
       DEPENDABOT_SLACK_WEBHOOK_URL: ${{ secrets.DEPENDABOT_SLACK_WEBHOOK_URL }}
 
     steps:
@@ -126,29 +125,19 @@ jobs:
       with:
         version: 'latest'
 
+    # v3+ only supports 2nd gen functions. Empty environment_variables /
+    # build_environment_variables leave the existing values untouched.
     - name: Deploy
-      if: env.ENV_VARS != ''
-      uses: google-github-actions/deploy-cloud-functions@b418957976ca9302f13bf31bd06aa0256b8263e1 # v2
+      uses: google-github-actions/deploy-cloud-functions@ab10d6b9be21630aafc15ced4c464c16cd6640d6 # v4.0.0
       with:
         name: ${{ inputs.app_name }}
         runtime: ${{ inputs.runtime }}
         entry_point: ${{ inputs.entry_point }}
-        memory_mb: ${{ inputs.memory }}
+        memory: ${{ inputs.memory }}Mi
         region: ${{ inputs.region }}
-        max_instances: ${{ inputs.max_instances }}
-        env_vars: ${{ secrets.ENV_VARS }}
+        max_instance_count: ${{ inputs.max_instances }}
+        environment_variables: ${{ secrets.ENV_VARS }}
         build_environment_variables: ${{ secrets.ENV_VARS }}
-
-    - name: Deploy
-      if: env.ENV_VARS == ''
-      uses: google-github-actions/deploy-cloud-functions@b418957976ca9302f13bf31bd06aa0256b8263e1 # v2
-      with:
-        name: ${{ inputs.app_name }}
-        runtime: ${{ inputs.runtime }}
-        entry_point: ${{ inputs.entry_point }}
-        memory_mb: ${{ inputs.memory }}
-        region: ${{ inputs.region }}
-        max_instances: ${{ inputs.max_instances }}
 
     - name: Set slack message (if success)
       if: always() && job.status == 'success'

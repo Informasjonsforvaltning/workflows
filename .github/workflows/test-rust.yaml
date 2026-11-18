@@ -26,7 +26,7 @@ on:
       grcov_binary_path:
         required: false
         type: string
-        default: ./target/debug/deps/
+        default: ./target/debug/
       rust_env:
         required: false
         type: string

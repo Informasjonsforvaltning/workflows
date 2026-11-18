@@ -24,9 +24,12 @@ on:
         type: string
         default: ./lcov.txt
       grcov_binary_path:
+        # grcov searches this path recursively. Cargo 1.100 moved test binaries
+        # from target/debug/deps/ to target/debug/build/<pkg>/<hash>/out/, so
+        # point at target/debug/ to cover both layouts.
         required: false
         type: string
-        default: ./target/debug/deps/
+        default: ./target/debug/
       rust_env:
         required: false
         type: string
